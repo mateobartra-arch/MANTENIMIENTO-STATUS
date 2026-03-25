@@ -845,8 +845,59 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     MODAL: EDITAR UBICACIÓN
+     MODAL: EDITAR UNIDAD (tipo, semirremolque, conductor)
 ═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editUnitModal">
+  <div class="modal" style="max-width:480px">
+    <button class="modal-close" onclick="APP.closeModal('editUnitModal')">×</button>
+    <div class="modal-title" id="euTitle">BWW797</div>
+    <div class="modal-sub">Editar datos de la unidad</div>
+
+    <div class="form-group">
+      <div class="form-label">Tipo de Vehículo</div>
+      <select class="form-select" id="eu-tipo">
+        <option value="TRACTO">Tracto</option>
+        <option value="ENCAPSULADO">Encapsulado</option>
+        <option value="PLATAFORMA">Plataforma</option>
+        <option value="PLATAFORMA CON BARANDA">Plataforma con Baranda</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="eu-semirremolque-group">
+      <div class="form-label">Placa Semirremolque / Tolva Acoplada</div>
+      <input class="form-input" id="eu-tolva" placeholder="Ej: BCZ999 — dejar vacío si no tiene">
+      <div style="font-size:12px;color:var(--text2);margin-top:4px">⚠️ El semirremolque es la unidad remolcada, el tracto es el que jala</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Conductor</div>
+        <input class="form-input" id="eu-conductor" placeholder="Nombre del conductor">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Marca</div>
+        <input class="form-input" id="eu-marca" placeholder="Scania, Volvo...">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Modelo</div>
+        <input class="form-input" id="eu-modelo" placeholder="Ej: R450">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Año</div>
+        <input class="form-input" type="number" id="eu-anio" placeholder="Ej: 2020">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="APP.closeModal('editUnitModal')">Cancelar</button>
+      <button class="btn btn-accent" onclick="APP.saveEditUnit()">💾 Guardar Cambios</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal-overlay" id="ubicModal">
   <div class="modal" style="max-width:420px">
     <button class="modal-close" onclick="APP.closeModal('ubicModal')">×</button>
@@ -1140,10 +1191,16 @@ function renderFleet() {
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;gap:6px">
         <div class="unit-ubic" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${u.ubicacion||'—'}">${u.ubicacion || '—'}</div>
-        <button onclick="APP.openEditUbic('${u.placa}')" title="Cambiar ubicación"
-          style="background:none;border:1px solid var(--border2);border-radius:6px;padding:3px 7px;cursor:pointer;font-size:13px;color:var(--text2);flex-shrink:0;transition:all .15s"
-          onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
-          onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">📍</button>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button onclick="APP.openEditUnit('${u.placa}')" title="Editar unidad"
+            style="background:none;border:1px solid var(--border2);border-radius:6px;padding:3px 7px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s"
+            onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+            onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">✏️</button>
+          <button onclick="APP.openEditUbic('${u.placa}')" title="Cambiar ubicación"
+            style="background:none;border:1px solid var(--border2);border-radius:6px;padding:3px 7px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s"
+            onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+            onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">📍</button>
+        </div>
       </div>
       <span class="unit-status-badge ${badgeClass}" onclick="APP.openChecklist('${u.placa}')" style="cursor:pointer">${badgeLabel}</span>
     </div>`;
@@ -1306,6 +1363,42 @@ async function saveNewUnit() {
   await setDoc(doc(db, 'unidades', placa), data);
   closeModal('addUnitModal');
   showToast(`🚛 Unidad ${placa} registrada`, 'success');
+}
+
+// ─── EDITAR UNIDAD (tipo, semirremolque, conductor, marca) ───
+let currentEditUnit = null;
+function openEditUnit(placa) {
+  currentEditUnit = allUnits.find(u => u.placa === placa);
+  if (!currentEditUnit) return;
+  document.getElementById('euTitle').textContent = placa;
+  document.getElementById('eu-tipo').value     = currentEditUnit.tipo || 'TRACTO';
+  document.getElementById('eu-tolva').value    = currentEditUnit.tolva || '';
+  document.getElementById('eu-conductor').value= currentEditUnit.conductor || '';
+  document.getElementById('eu-marca').value    = currentEditUnit.marca || '';
+  document.getElementById('eu-modelo').value   = currentEditUnit.modelo || '';
+  document.getElementById('eu-anio').value     = currentEditUnit.anio || '';
+  // mostrar/ocultar campo semirremolque según tipo
+  const t = currentEditUnit.tipo || 'TRACTO';
+  document.getElementById('eu-semirremolque-group').style.display = t === 'TRACTO' ? 'block' : 'none';
+  document.getElementById('eu-tipo').addEventListener('change', function() {
+    document.getElementById('eu-semirremolque-group').style.display = this.value === 'TRACTO' ? 'block' : 'none';
+  });
+  document.getElementById('editUnitModal').classList.add('open');
+}
+async function saveEditUnit() {
+  if (!currentEditUnit) return;
+  const tipo = document.getElementById('eu-tipo').value;
+  const data = {
+    tipo,
+    tolva:     tipo === 'TRACTO' ? document.getElementById('eu-tolva').value.trim().toUpperCase() : '',
+    conductor: document.getElementById('eu-conductor').value.trim(),
+    marca:     document.getElementById('eu-marca').value.trim(),
+    modelo:    document.getElementById('eu-modelo').value.trim(),
+    anio:      document.getElementById('eu-anio').value || '',
+  };
+  await updateDoc(doc(db, 'unidades', currentEditUnit.placa), data);
+  APP.closeModal('editUnitModal');
+  showToast(`✅ ${currentEditUnit.placa} actualizado`, 'success');
 }
 
 // ─── EDITAR UBICACIÓN ───
@@ -1881,6 +1974,7 @@ window.APP = {
   closeFalla, editFalla, exportReport,
   loadUnitHistory,
   openEditUbic, saveUbicacion,
+  openEditUnit, saveEditUnit,
   closeModal(id) { document.getElementById(id).classList.remove('open'); },
   showToast,
 };
