@@ -866,7 +866,6 @@
     <div class="form-group" id="eu-semirremolque-group">
       <div class="form-label">Placa Semirremolque / Tolva Acoplada</div>
       <input class="form-input" id="eu-tolva" placeholder="Ej: BCZ999 — dejar vacío si no tiene">
-      <div style="font-size:12px;color:var(--text2);margin-top:4px">⚠️ El semirremolque es la unidad remolcada, el tracto es el que jala</div>
     </div>
 
     <div class="form-row">
@@ -1865,7 +1864,7 @@ async function exportReport() {
   const rows = allUnits.map((u, i) => {
     const c = todayChecks[u.placa];
     const estado = c?.estado || 'SIN REPORTE';
-    const estadoLabel = estado === 'OPERATIVO' ? '✓ Operativo' : estado === 'OBSERVADO' ? '⚠ Observado' : estado === 'FUERA' ? '✗ Fuera Svc.' : '— Sin reportar';
+    const estadoLabel = estado === 'OPERATIVO' ? 'Operativo' : estado === 'OBSERVADO' ? 'Observado' : estado === 'FUERA' ? 'Fuera Svc.' : 'Sin reportar';
     return [
       i + 1,
       u.placa,
@@ -1913,25 +1912,14 @@ async function exportReport() {
       9:  { cellWidth: 24 },
       10: { halign:'right', cellWidth: 18 },
     },
-    didDrawCell(data) {
-      // color fila según estado
-      if (data.section === 'body' && data.column.index === 6) {
-        const v = data.cell.text[0] || '';
-        let color = null;
-        if (v.includes('Operativo'))  color = [46,158,91];
-        else if (v.includes('Observado')) color = [224,123,26];
-        else if (v.includes('Fuera'))     color = [214,59,59];
-        if (color) {
-          doc.setTextColor(...color);
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(7);
-          doc.text(v, data.cell.x + data.cell.width/2, data.cell.y + data.cell.height/2 + 0.8, { align:'center' });
-        }
-      }
-    },
     didParseCell(data) {
       if (data.section === 'body' && data.column.index === 6) {
-        data.cell.styles.textColor = [200,200,200]; // ocultar texto original
+        const v = (data.cell.text[0] || '').trim();
+        if (v.includes('Operativo'))      data.cell.styles.textColor = [46,158,91];
+        else if (v.includes('Observado')) data.cell.styles.textColor = [224,123,26];
+        else if (v.includes('Fuera'))     data.cell.styles.textColor = [214,59,59];
+        else                              data.cell.styles.textColor = [154,176,200];
+        data.cell.styles.fontStyle = 'bold';
       }
     },
   });
