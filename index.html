@@ -7,22 +7,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0d14;
-    --bg2: #0f1520;
-    --bg3: #141b28;
-    --card: #161e2e;
-    --card2: #1c2540;
-    --border: #1e2d45;
-    --border2: #243352;
-    --accent: #00c3ff;
-    --accent2: #0088cc;
-    --green: #00e676;
-    --orange: #ff9800;
-    --red: #f44336;
-    --yellow: #ffeb3b;
-    --text: #e8f0ff;
-    --text2: #8899bb;
-    --text3: #4a5f80;
+    --bg: #f0f4f8;
+    --bg2: #ffffff;
+    --bg3: #f7f9fc;
+    --card: #ffffff;
+    --card2: #eef2f7;
+    --border: #dde3ed;
+    --border2: #c8d3e3;
+    --accent: #1a6eb5;
+    --accent2: #145a96;
+    --green: #2e9e5b;
+    --orange: #e07b1a;
+    --red: #d63b3b;
+    --yellow: #c9960a;
+    --text: #1c2b3a;
+    --text2: #5a7290;
+    --text3: #9ab0c8;
+    --shadow: 0 2px 12px rgba(30,70,120,0.08);
+    --shadow2: 0 6px 24px rgba(30,70,120,0.12);
     --font: 'Barlow Condensed', sans-serif;
     --font2: 'Barlow', sans-serif;
   }
@@ -31,12 +33,12 @@
 
   /* ─── HEADER ─── */
   header {
-    background: linear-gradient(135deg, #0a0d14 0%, #0f1c35 100%);
+    background: #ffffff;
     border-bottom: 1px solid var(--border);
     padding: 0 32px;
     display: flex; align-items: center; justify-content: space-between;
     height: 64px; position: sticky; top:0; z-index:100;
-    box-shadow: 0 2px 24px rgba(0,195,255,0.06);
+    box-shadow: var(--shadow);
   }
   .logo-area { display:flex; align-items:center; gap:16px; }
   .logo-area img { height:38px; border-radius:6px; }
@@ -48,8 +50,9 @@
 
   /* ─── NAV ─── */
   nav {
-    background: var(--bg2); border-bottom: 1px solid var(--border);
+    background: #ffffff; border-bottom: 1px solid var(--border);
     padding: 0 32px; display:flex; gap:4px; align-items:center;
+    box-shadow: 0 1px 4px rgba(30,70,120,0.05);
   }
   .nav-btn {
     padding: 14px 24px; background:none; border:none; color:var(--text2);
@@ -69,13 +72,17 @@
   .page { display:none; padding:28px 32px; min-height: calc(100vh - 120px); }
   .page.active { display:block; }
 
+  /* ─── PAGE 2 FILTERS ─── */
+  .filters-bar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; align-items:center; }
+
   /* ─── KPI BAR ─── */
   .kpi-bar { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:24px; }
   .kpi-card {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 16px 20px;
+    border-radius: 12px; padding: 16px 20px;
     display:flex; flex-direction:column; gap:4px;
     position:relative; overflow:hidden;
+    box-shadow: var(--shadow);
   }
   .kpi-card::before {
     content:''; position:absolute; top:0; left:0; width:4px; height:100%;
@@ -90,24 +97,24 @@
   .search-box {
     flex:1; min-width:200px; background:var(--card); border:1px solid var(--border2);
     border-radius:8px; padding:10px 16px; color:var(--text); font-family:var(--font2);
-    font-size:14px; outline:none; transition:border-color .2s;
+    font-size:14px; outline:none; transition:border-color .2s; box-shadow:var(--shadow);
   }
   .search-box:focus { border-color:var(--accent); }
   .filter-select {
     background:var(--card); border:1px solid var(--border2); border-radius:8px;
     padding:10px 14px; color:var(--text); font-family:var(--font2); font-size:13px;
-    outline:none; cursor:pointer;
+    outline:none; cursor:pointer; box-shadow:var(--shadow);
   }
   .btn {
     padding:10px 20px; border:none; border-radius:8px; cursor:pointer;
     font-family:var(--font); font-size:14px; font-weight:700; letter-spacing:1px;
     text-transform:uppercase; transition:all .2s;
   }
-  .btn-accent { background:var(--accent); color:#000; }
-  .btn-accent:hover { background:#00d9ff; transform:translateY(-1px); }
-  .btn-outline { background:none; border:1px solid var(--border2); color:var(--text2); }
+  .btn-accent { background:var(--accent); color:#fff; }
+  .btn-accent:hover { background:var(--accent2); transform:translateY(-1px); box-shadow:var(--shadow2); }
+  .btn-outline { background:var(--card); border:1px solid var(--border2); color:var(--text2); }
   .btn-outline:hover { border-color:var(--accent); color:var(--accent); }
-  .btn-green { background:var(--green); color:#000; }
+  .btn-green { background:var(--green); color:#fff; }
   .btn-red { background:var(--red); color:#fff; }
   .btn-sm { padding:6px 14px; font-size:12px; }
 
@@ -115,18 +122,19 @@
 
   .unit-card {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; padding: 16px; cursor:pointer;
+    border-radius: 14px; padding: 16px; cursor:pointer;
     transition: all .25s; position:relative; overflow:hidden;
+    box-shadow: var(--shadow);
   }
-  .unit-card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,195,255,0.12); }
-  .unit-card.status-ok { border-left: 4px solid var(--green); }
-  .unit-card.status-obs { border-left: 4px solid var(--orange); }
-  .unit-card.status-fuera { border-left: 4px solid var(--red); }
-  .unit-card.status-pending { border-left: 4px solid var(--text3); }
+  .unit-card:hover { border-color:var(--accent); transform:translateY(-3px); box-shadow:var(--shadow2); }
+  .unit-card.status-ok { border-top: 4px solid var(--green); }
+  .unit-card.status-obs { border-top: 4px solid var(--orange); }
+  .unit-card.status-fuera { border-top: 4px solid var(--red); }
+  .unit-card.status-pending { border-top: 4px solid var(--text3); }
   .unit-card.checked-today::after {
     content:'✓'; position:absolute; top:10px; right:10px;
     width:22px; height:22px; border-radius:50%; background:var(--green);
-    color:#000; font-size:12px; font-weight:900; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:12px; font-weight:900; display:flex; align-items:center; justify-content:center;
   }
 
   .truck-svg { width:100%; height:70px; margin-bottom:10px; }
@@ -141,23 +149,23 @@
     font-family:var(--font); font-size:11px; font-weight:700; letter-spacing:1px;
     text-transform:uppercase; margin-top:8px;
   }
-  .badge-op { background:rgba(0,230,118,.15); color:var(--green); border:1px solid rgba(0,230,118,.3); }
-  .badge-obs { background:rgba(255,152,0,.15); color:var(--orange); border:1px solid rgba(255,152,0,.3); }
-  .badge-fuera { background:rgba(244,67,54,.15); color:var(--red); border:1px solid rgba(244,67,54,.3); }
-  .badge-pend { background:rgba(74,95,128,.15); color:var(--text3); border:1px solid rgba(74,95,128,.3); }
+  .badge-op { background:rgba(46,158,91,.12); color:var(--green); border:1px solid rgba(46,158,91,.3); }
+  .badge-obs { background:rgba(224,123,26,.12); color:var(--orange); border:1px solid rgba(224,123,26,.3); }
+  .badge-fuera { background:rgba(214,59,59,.12); color:var(--red); border:1px solid rgba(214,59,59,.3); }
+  .badge-pend { background:rgba(154,176,200,.15); color:var(--text3); border:1px solid rgba(154,176,200,.3); }
 
   /* ─── MODAL ─── */
   .modal-overlay {
-    display:none; position:fixed; inset:0; background:rgba(0,0,0,.75);
+    display:none; position:fixed; inset:0; background:rgba(28,43,58,.45);
     z-index:500; align-items:center; justify-content:center;
     backdrop-filter: blur(4px);
   }
   .modal-overlay.open { display:flex; }
   .modal {
-    background: var(--bg3); border: 1px solid var(--border2);
+    background: #ffffff; border: 1px solid var(--border);
     border-radius: 16px; width: min(560px, 96vw); max-height: 92vh;
     overflow-y: auto; padding: 28px; position:relative;
-    animation: slideUp .25s ease;
+    animation: slideUp .25s ease; box-shadow: var(--shadow2);
   }
   @keyframes slideUp { from { transform:translateY(30px); opacity:0; } to { transform:translateY(0); opacity:1; } }
   .modal-close {
@@ -170,61 +178,58 @@
   .form-group { margin-bottom:16px; }
   .form-label { font-family:var(--font); font-size:13px; font-weight:600; color:var(--text2); letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px; }
   .form-input, .form-select, .form-textarea {
-    width:100%; background:var(--card2); border:1px solid var(--border2);
+    width:100%; background:var(--bg3); border:1px solid var(--border2);
     border-radius:8px; padding:10px 14px; color:var(--text); font-family:var(--font2);
     font-size:14px; outline:none; transition:border-color .2s;
   }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--accent); }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(26,110,181,.1); }
   .form-textarea { resize:vertical; min-height:80px; }
   .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
   .estado-btns { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
   .estado-btn {
     padding:12px; border:2px solid var(--border2); border-radius:8px;
-    background:none; color:var(--text2); cursor:pointer; font-family:var(--font);
+    background:var(--bg3); color:var(--text2); cursor:pointer; font-family:var(--font);
     font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
     transition:all .2s; text-align:center;
   }
-  .estado-btn.sel-op { border-color:var(--green); background:rgba(0,230,118,.1); color:var(--green); }
-  .estado-btn.sel-obs { border-color:var(--orange); background:rgba(255,152,0,.1); color:var(--orange); }
-  .estado-btn.sel-fuera { border-color:var(--red); background:rgba(244,67,54,.1); color:var(--red); }
+  .estado-btn.sel-op { border-color:var(--green); background:rgba(46,158,91,.08); color:var(--green); }
+  .estado-btn.sel-obs { border-color:var(--orange); background:rgba(224,123,26,.08); color:var(--orange); }
+  .estado-btn.sel-fuera { border-color:var(--red); background:rgba(214,59,59,.08); color:var(--red); }
 
   .gravedad-btns { display:flex; gap:8px; }
   .grav-btn {
     flex:1; padding:8px; border-radius:6px; border:1px solid var(--border2);
-    background:none; cursor:pointer; font-family:var(--font); font-size:12px;
+    background:var(--bg3); cursor:pointer; font-family:var(--font); font-size:12px;
     font-weight:700; color:var(--text2); transition:all .2s;
   }
-  .grav-btn.sel { }
-  .grav-leve.sel { border-color:var(--yellow); background:rgba(255,235,59,.1); color:var(--yellow); }
-  .grav-grave.sel { border-color:var(--orange); background:rgba(255,152,0,.1); color:var(--orange); }
-  .grav-muy.sel { border-color:var(--red); background:rgba(244,67,54,.1); color:var(--red); }
+  .grav-leve.sel { border-color:var(--yellow); background:rgba(201,150,10,.1); color:var(--yellow); }
+  .grav-grave.sel { border-color:var(--orange); background:rgba(224,123,26,.1); color:var(--orange); }
+  .grav-muy.sel { border-color:var(--red); background:rgba(214,59,59,.1); color:var(--red); }
 
   .modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); }
 
-  /* ─── PAGE 2: REPORTES ─── */
-  .filters-bar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; align-items:center; }
-  .table-wrap { overflow-x:auto; border-radius:10px; border:1px solid var(--border); }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  thead { background:var(--bg2); }
+  .table-wrap { overflow-x:auto; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow); }
+  table { width:100%; border-collapse:collapse; font-size:13px; background:var(--card); }
+  thead { background:var(--bg3); }
   th { padding:12px 14px; text-align:left; font-family:var(--font); font-size:12px; font-weight:700; color:var(--text2); letter-spacing:1.5px; text-transform:uppercase; white-space:nowrap; border-bottom:1px solid var(--border); }
-  td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:middle; white-space:nowrap; }
+  td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:middle; white-space:nowrap; color:var(--text); }
   tr:last-child td { border-bottom:none; }
-  tr:hover td { background:rgba(0,195,255,.04); }
+  tr:hover td { background:rgba(26,110,181,.04); }
   .nivel-badge {
     padding:4px 10px; border-radius:4px; font-family:var(--font);
     font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
   }
-  .nivel-leve { background:rgba(255,235,59,.15); color:var(--yellow); border:1px solid rgba(255,235,59,.3); }
-  .nivel-grave { background:rgba(255,152,0,.15); color:var(--orange); border:1px solid rgba(255,152,0,.3); }
-  .nivel-muy { background:rgba(244,67,54,.15); color:var(--red); border:1px solid rgba(244,67,54,.3); }
+  .nivel-leve { background:rgba(201,150,10,.12); color:var(--yellow); border:1px solid rgba(201,150,10,.3); }
+  .nivel-grave { background:rgba(224,123,26,.12); color:var(--orange); border:1px solid rgba(224,123,26,.3); }
+  .nivel-muy { background:rgba(214,59,59,.12); color:var(--red); border:1px solid rgba(214,59,59,.3); }
   .estado-badge {
     padding:4px 10px; border-radius:4px; font-family:var(--font);
     font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
   }
-  .est-abierto { background:rgba(244,67,54,.15); color:var(--red); border:1px solid rgba(244,67,54,.3); }
-  .est-pendiente { background:rgba(255,152,0,.15); color:var(--orange); border:1px solid rgba(255,152,0,.3); }
-  .est-cerrado { background:rgba(0,230,118,.15); color:var(--green); border:1px solid rgba(0,230,118,.3); }
+  .est-abierto { background:rgba(214,59,59,.12); color:var(--red); border:1px solid rgba(214,59,59,.3); }
+  .est-pendiente { background:rgba(224,123,26,.12); color:var(--orange); border:1px solid rgba(224,123,26,.3); }
+  .est-cerrado { background:rgba(46,158,91,.12); color:var(--green); border:1px solid rgba(46,158,91,.3); }
 
   /* ─── PAGE 3: HISTORIAL UNIDAD ─── */
   .unit-selector-bar { display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; align-items:center; }
@@ -232,6 +237,7 @@
     background:var(--card); border:1px solid var(--border);
     border-radius:12px; padding:24px; margin-bottom:24px;
     display:grid; grid-template-columns: auto 1fr; gap:24px; align-items:center;
+    box-shadow: var(--shadow);
   }
   .unit-big-svg { width:120px; }
   .unit-info-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; }
@@ -250,14 +256,15 @@
   .tl-dot.green { background:var(--green); }
   .tl-card {
     background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px;
+    box-shadow: var(--shadow);
   }
   .tl-date { font-family:var(--font); font-size:12px; color:var(--text2); letter-spacing:1px; margin-bottom:4px; }
   .tl-desc { font-size:14px; color:var(--text); font-weight:500; margin-bottom:8px; }
-  .tl-meta { display:flex; gap:12px; font-size:12px; color:var(--text3); flex-wrap:wrap; }
+  .tl-meta { display:flex; gap:12px; font-size:12px; color:var(--text2); flex-wrap:wrap; }
 
   /* ─── PAGE 4: DASHBOARD ─── */
   .dash-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; }
-  .dash-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; }
+  .dash-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:var(--shadow); }
   .dash-card-title { font-family:var(--font); font-size:14px; font-weight:700; color:var(--text2); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:16px; }
   .progress-list { display:flex; flex-direction:column; gap:10px; }
   .progress-item label { display:flex; justify-content:space-between; font-size:13px; color:var(--text2); margin-bottom:4px; }
@@ -268,25 +275,25 @@
   .tipo-select-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
   .tipo-opt {
     border:2px solid var(--border2); border-radius:10px; padding:16px 10px;
-    background:none; cursor:pointer; text-align:center; color:var(--text2);
+    background:var(--bg3); cursor:pointer; text-align:center; color:var(--text2);
     font-family:var(--font); font-size:13px; font-weight:700; transition:all .2s;
     display:flex; flex-direction:column; align-items:center; gap:8px;
   }
-  .tipo-opt:hover, .tipo-opt.selected { border-color:var(--accent); color:var(--accent); background:rgba(0,195,255,.08); }
+  .tipo-opt:hover, .tipo-opt.selected { border-color:var(--accent); color:var(--accent); background:rgba(26,110,181,.06); }
   .tipo-opt svg { width:40px; height:30px; }
 
   /* ─── EMPTY STATE ─── */
   .empty-state { text-align:center; padding:60px 20px; color:var(--text3); }
-  .empty-state svg { width:80px; height:60px; margin-bottom:16px; opacity:.3; }
+  .empty-state svg { width:80px; height:60px; margin-bottom:16px; opacity:.4; }
   .empty-state p { font-family:var(--font); font-size:16px; letter-spacing:1px; }
 
   /* ─── TOAST ─── */
   .toast {
-    position:fixed; bottom:24px; right:24px; background:var(--card2);
-    border:1px solid var(--border2); border-radius:10px; padding:14px 20px;
+    position:fixed; bottom:24px; right:24px; background:#fff;
+    border:1px solid var(--border); border-radius:10px; padding:14px 20px;
     font-family:var(--font2); font-size:14px; color:var(--text);
     z-index:1000; transform:translateX(200%); transition:transform .3s;
-    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    box-shadow: var(--shadow2);
   }
   .toast.show { transform:translateX(0); }
   .toast.success { border-left: 4px solid var(--green); }
@@ -674,96 +681,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ─── FLOTA BASE (inicial del Excel) ───
+// ─── FLOTA MISAGI ───
 const FLOTA_INICIAL = [
-  {placa:"CFF841",tipo:"TRACTO",tolva:"BDA983",ubicacion:"ESPINAR",estado:"OPERATIVO",conductor:""},
-  {placa:"CFG704",tipo:"TRACTO",tolva:"ANF983",ubicacion:"ESPINAR",estado:"OBSERVADO",conductor:"CHAPARRO"},
-  {placa:"CDJ712",tipo:"TRACTO",tolva:"VGI993",ubicacion:"AREQUIPA",estado:"OPERATIVO",conductor:"HUMBERT PACOMPILLA"},
-  {placa:"CDI829",tipo:"TRACTO",tolva:"Z3P982",ubicacion:"ESPINAR",estado:"OPERATIVO",conductor:"ELMER MALLE FLORES"},
-  {placa:"BWW797",tipo:"TRACTO",tolva:"BCZ999",ubicacion:"AREQUIPA",estado:"OPERATIVO",conductor:""},
-  {placa:"BWU917",tipo:"TRACTO",tolva:"AFO999",ubicacion:"ESPINAR",estado:"OBSERVADO",conductor:"RENE KANA"},
-  {placa:"AKZ901",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"AKZ938",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"LIMA",estado:"OPERATIVO"},
-  {placa:"AMI947",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"AMK712",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AML809",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANB864",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"P. WINCHO TRACTO",estado:"OPERATIVO"},
-  {placa:"ANB865",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANI927",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANJ907",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANJ925",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"ANK766",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"ANK794",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANK888",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"ANK933",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"ATT769",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ATT770",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ATT771",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ATT799",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ATU728",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ATU847",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS TRACTO",estado:"OPERATIVO"},
-  {placa:"ATU848",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ATU943",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AUC923",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AUD778",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AUD907",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AUD928",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWL834",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"AWL896",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWM709",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"AWM761",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"P. CONGUYA",estado:"OPERATIVO"},
-  {placa:"AWM842",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWM902",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWN884",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWQ834",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"AWT947",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWU703",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWU742",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"AWU756",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWU762",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWU819",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"P. CONGUYA TRACTO",estado:"OPERATIVO"},
-  {placa:"AWU821",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWU871",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWU879",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWU891",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWU892",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWU902",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWU903",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWV724",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWV730",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWV731",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"AWV733",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWV752",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AWV760",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AXB935",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AXC749",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AXC766",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AXC865",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AXD700",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"ATU705",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"APL856",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"PILLONES",estado:"OPERATIVO"},
-  {placa:"APM730",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"APM795",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"APM832",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"APM867",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"APM877",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"APM879",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"APM903",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"APM918",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"P. CONGUYA",estado:"OPERATIVO"},
-  {placa:"AMJ785",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"AMJ936",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANB940",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANC771",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"VELILLE",estado:"OPERATIVO"},
-  {placa:"ANJ786",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANK780",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANK796",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANK934",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANS927",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANT752",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANT768",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS TRACTO",estado:"OPERATIVO"},
-  {placa:"ANT769",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
-  {placa:"ANT906",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
-  {placa:"AWN796",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"BWU917", tipo:"TRACTO", tolva:"AFO999",  ubicacion:"ESPINAR",  estado:"OBSERVADO", conductor:"RENE KANA"},
+  {placa:"BWW797", tipo:"TRACTO", tolva:"BCZ999",  ubicacion:"AREQUIPA", estado:"OPERATIVO", conductor:""},
+  {placa:"CDI829", tipo:"TRACTO", tolva:"Z3P982",  ubicacion:"ESPINAR",  estado:"OPERATIVO", conductor:"ELMER MALLE FLORES"},
+  {placa:"CDJ712", tipo:"TRACTO", tolva:"VGI993",  ubicacion:"AREQUIPA", estado:"OPERATIVO", conductor:"HUMBERT PACOMPILLA"},
+  {placa:"CFF841", tipo:"TRACTO", tolva:"BDA983",  ubicacion:"ESPINAR",  estado:"OPERATIVO", conductor:""},
+  {placa:"CFG704", tipo:"TRACTO", tolva:"ANF983",  ubicacion:"ESPINAR",  estado:"OBSERVADO", conductor:"CHAPARRO"},
+  {placa:"CJS724", tipo:"TRACTO", tolva:"",        ubicacion:"ESPINAR",  estado:"OPERATIVO", conductor:""},
 ];
 
 // ─── STATE ───
@@ -788,14 +714,24 @@ async function init() {
 async function seedUnitsIfEmpty() {
   try {
     const snap = await getDocs(collection(db, 'unidades'));
-    if (snap.empty) {
-      showToast('Inicializando flota...', 'success');
+    const MISAGI_PLACAS = FLOTA_INICIAL.map(u => u.placa);
+
+    // Delete any unit NOT in MISAGI fleet
+    const toDelete = snap.docs.filter(d => !MISAGI_PLACAS.includes(d.id));
+    if (toDelete.length > 0) {
+      for (const d of toDelete) {
+        await updateDoc(doc(db, 'unidades', d.id), { activo: false });
+      }
+    }
+
+    // Seed the 7 MISAGI units
+    if (snap.empty || snap.docs.filter(d => MISAGI_PLACAS.includes(d.id)).length < MISAGI_PLACAS.length) {
       for (const u of FLOTA_INICIAL) {
         await setDoc(doc(db, 'unidades', u.placa), {
           ...u, activo: true, creadoEn: serverTimestamp()
         });
       }
-      showToast(`Flota cargada: ${FLOTA_INICIAL.length} unidades`, 'success');
+      showToast(`✅ Flota MISAGI cargada: ${FLOTA_INICIAL.length} unidades`, 'success');
     }
   } catch(e) {
     document.getElementById('fleetGrid').innerHTML = `
@@ -803,7 +739,7 @@ async function seedUnitsIfEmpty() {
         <div style="font-size:32px;margin-bottom:12px">⚠️</div>
         <div style="font-family:var(--font);font-size:18px;font-weight:700;margin-bottom:8px">Error de conexión Firebase</div>
         <div style="font-size:13px;color:var(--text2);max-width:400px;margin:0 auto">
-          Ve a <strong>Firebase Console → Firestore → Reglas</strong> y cambia a modo test:<br><br>
+          Ve a <strong>Firebase Console → Firestore → Reglas</strong> y activa modo test:<br><br>
           <code style="background:var(--card2);padding:8px 12px;border-radius:6px;display:inline-block;font-size:12px">allow read, write: if true;</code>
         </div>
       </div>`;
@@ -858,59 +794,64 @@ function startClock() {
   tick(); setInterval(tick, 1000);
 }
 
-// ─── TRUCK SVG ───
-function truckSVG(tipo, color='#00c3ff') {
+// ─── TRUCK SVG — 3 ejes, 6 ruedas ───
+function truckSVG(tipo, color='#1a6eb5') {
   if (tipo === 'TRACTO') return `
-    <svg class="truck-svg" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="30" width="110" height="34" rx="4" fill="${color}" opacity=".2" stroke="${color}" stroke-width="1.5"/>
-      <rect x="114" y="18" width="76" height="46" rx="4" fill="${color}" opacity=".35" stroke="${color}" stroke-width="1.5"/>
-      <rect x="120" y="22" width="62" height="24" rx="3" fill="${color}" opacity=".15"/>
-      <line x1="148" y1="22" x2="148" y2="46" stroke="${color}" stroke-width="1" opacity=".4"/>
-      <rect x="4" y="54" width="186" height="8" rx="0" fill="${color}" opacity=".1"/>
-      <circle cx="30" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="30" cy="66" r="3" fill="${color}" opacity=".6"/>
-      <circle cx="72" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="72" cy="66" r="3" fill="${color}" opacity=".6"/>
-      <circle cx="150" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="150" cy="66" r="3" fill="${color}" opacity=".6"/>
-      <circle cx="175" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="175" cy="66" r="3" fill="${color}" opacity=".6"/>
-      <rect x="186" y="36" width="10" height="8" rx="2" fill="${color}" opacity=".5"/>
+    <svg class="truck-svg" viewBox="0 0 220 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Remolque / cuerpo largo -->
+      <rect x="4" y="28" width="110" height="32" rx="4" fill="${color}" opacity=".15" stroke="${color}" stroke-width="1.5"/>
+      <!-- Cabina -->
+      <rect x="114" y="16" width="76" height="44" rx="4" fill="${color}" opacity=".25" stroke="${color}" stroke-width="1.5"/>
+      <!-- Ventana cabina -->
+      <rect x="120" y="20" width="64" height="22" rx="3" fill="${color}" opacity=".12"/>
+      <line x1="152" y1="20" x2="152" y2="42" stroke="${color}" stroke-width="1" opacity=".4"/>
+      <!-- Piso -->
+      <rect x="4" y="52" width="186" height="6" rx="0" fill="${color}" opacity=".08"/>
+      <!-- Eje 1 — rueda delantera cabina -->
+      <circle cx="168" cy="68" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="168" cy="68" r="4" fill="${color}" opacity=".35"/>
+      <!-- Eje 2 — doble rueda trasera cabina -->
+      <circle cx="145" cy="68" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="145" cy="68" r="4" fill="${color}" opacity=".35"/>
+      <!-- Eje 3 — rueda remolque -->
+      <circle cx="38" cy="68" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="38" cy="68" r="4" fill="${color}" opacity=".35"/>
+      <!-- Parachoques -->
+      <rect x="188" y="34" width="10" height="8" rx="2" fill="${color}" opacity=".5"/>
+      <!-- Engancha -->
+      <line x1="114" y1="52" x2="114" y2="60" stroke="${color}" stroke-width="2" opacity=".5"/>
     </svg>`;
   if (tipo === 'TOLVA') return `
-    <svg class="truck-svg" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="30" width="192" height="32" rx="4" fill="${color}" opacity=".2" stroke="${color}" stroke-width="1.5"/>
-      <polygon points="20,30 180,30 170,12 30,12" fill="${color}" opacity=".25" stroke="${color}" stroke-width="1.5"/>
-      <circle cx="30" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="30" cy="66" r="3" fill="${color}" opacity=".6"/>
-      <circle cx="80" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="80" cy="66" r="3" fill="${color}" opacity=".6"/>
-      <circle cx="120" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="120" cy="66" r="3" fill="${color}" opacity=".6"/>
-      <circle cx="170" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="170" cy="66" r="3" fill="${color}" opacity=".6"/>
+    <svg class="truck-svg" viewBox="0 0 220 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="30" width="212" height="28" rx="4" fill="${color}" opacity=".15" stroke="${color}" stroke-width="1.5"/>
+      <polygon points="22,30 198,30 188,12 32,12" fill="${color}" opacity=".2" stroke="${color}" stroke-width="1.5"/>
+      <circle cx="32" cy="68" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="32" cy="68" r="4" fill="${color}" opacity=".35"/>
+      <circle cx="100" cy="68" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="100" cy="68" r="4" fill="${color}" opacity=".35"/>
+      <circle cx="188" cy="68" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="188" cy="68" r="4" fill="${color}" opacity=".35"/>
     </svg>`;
   return `
-    <svg class="truck-svg" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="26" width="130" height="36" rx="4" fill="${color}" opacity=".2" stroke="${color}" stroke-width="1.5"/>
-      <rect x="134" y="14" width="60" height="48" rx="4" fill="${color}" opacity=".35" stroke="${color}" stroke-width="1.5"/>
-      <rect x="139" y="18" width="50" height="22" rx="3" fill="${color}" opacity=".15"/>
-      <circle cx="30" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="30" cy="66" r="3" fill="${color}" opacity=".6"/>
-      <circle cx="90" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="90" cy="66" r="3" fill="${color}" opacity=".6"/>
-      <circle cx="155" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="155" cy="66" r="3" fill="${color}" opacity=".6"/>
-      <circle cx="182" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
-      <circle cx="182" cy="66" r="3" fill="${color}" opacity=".6"/>
+    <svg class="truck-svg" viewBox="0 0 220 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="24" width="135" height="34" rx="4" fill="${color}" opacity=".15" stroke="${color}" stroke-width="1.5"/>
+      <rect x="139" y="12" width="66" height="46" rx="4" fill="${color}" opacity=".25" stroke="${color}" stroke-width="1.5"/>
+      <rect x="144" y="16" width="56" height="22" rx="3" fill="${color}" opacity=".12"/>
+      <circle cx="28" cy="68" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="28" cy="68" r="4" fill="${color}" opacity=".35"/>
+      <circle cx="90" cy="68" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="90" cy="68" r="4" fill="${color}" opacity=".35"/>
+      <circle cx="172" cy="68" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="172" cy="68" r="4" fill="${color}" opacity=".35"/>
+      <rect x="203" y="32" width="10" height="8" rx="2" fill="${color}" opacity=".5"/>
     </svg>`;
 }
 
 function statusColor(estado) {
-  if (estado === 'OPERATIVO') return 'var(--green)';
-  if (estado === 'OBSERVADO') return 'var(--orange)';
-  if (estado === 'FUERA') return 'var(--red)';
-  return 'var(--text3)';
+  if (estado === 'OPERATIVO') return '#2e9e5b';
+  if (estado === 'OBSERVADO') return '#e07b1a';
+  if (estado === 'FUERA')     return '#d63b3b';
+  return '#9ab0c8';
 }
 
 // ─── RENDER FLEET ───
@@ -938,14 +879,14 @@ function renderFleet() {
   grid.innerHTML = units.map(u => {
     const check = todayChecks[u.placa];
     const estadoHoy = check ? check.estado : 'PENDING';
-    const color = estadoHoy === 'OPERATIVO' ? 'var(--green)' : estadoHoy === 'OBSERVADO' ? 'var(--orange)' : estadoHoy === 'FUERA' ? 'var(--red)' : 'var(--text3)';
+    const color = estadoHoy === 'OPERATIVO' ? '#2e9e5b' : estadoHoy === 'OBSERVADO' ? '#e07b1a' : estadoHoy === 'FUERA' ? '#d63b3b' : '#9ab0c8';
     const statusClass = estadoHoy === 'OPERATIVO' ? 'status-ok' : estadoHoy === 'OBSERVADO' ? 'status-obs' : estadoHoy === 'FUERA' ? 'status-fuera' : 'status-pending';
     const badgeClass = estadoHoy === 'OPERATIVO' ? 'badge-op' : estadoHoy === 'OBSERVADO' ? 'badge-obs' : estadoHoy === 'FUERA' ? 'badge-fuera' : 'badge-pend';
     const badgeLabel = estadoHoy === 'OPERATIVO' ? 'Operativo' : estadoHoy === 'OBSERVADO' ? 'Observado' : estadoHoy === 'FUERA' ? 'Fuera de Servicio' : 'Sin reportar';
     const checkedClass = check ? 'checked-today' : '';
 
     return `<div class="unit-card ${statusClass} ${checkedClass}" onclick="APP.openChecklist('${u.placa}')">
-      ${truckSVG(u.tipo, color.replace('var(','').replace(')','') === '--green' ? '#00e676' : color.replace('var(','').replace(')','') === '--orange' ? '#ff9800' : color.replace('var(','').replace(')','') === '--red' ? '#f44336' : '#4a5f80')}
+      ${truckSVG(u.tipo, color)}
       <div class="unit-placa">${u.placa}</div>
       <div class="unit-tipo">${u.tipo}${u.tolva ? ` · ${u.tolva}` : ''}</div>
       <div class="unit-ubic">${u.ubicacion || '—'}</div>
@@ -1146,7 +1087,7 @@ function renderReports() {
       <td>S/.${(parseFloat(f.costo)||0).toFixed(2)}</td>
       <td>
         <button class="btn btn-outline btn-sm" onclick="APP.editFalla('${f.id}')">Editar</button>
-        <button class="btn btn-sm" style="background:rgba(0,230,118,.15);color:var(--green);border:1px solid rgba(0,230,118,.3)" onclick="APP.closeFalla('${f.id}')">✓ Cerrar</button>
+        <button class="btn btn-sm" style="background:rgba(46,158,91,.12);color:var(--green);border:1px solid rgba(46,158,91,.3)" onclick="APP.closeFalla('${f.id}')">✓ Cerrar</button>
       </td>
     </tr>`;
   }).join('');
