@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MISAGI — Sistema de Flota</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d14;
+    --bg2: #0f1520;
+    --bg3: #141b28;
+    --card: #161e2e;
+    --card2: #1c2540;
+    --border: #1e2d45;
+    --border2: #243352;
+    --accent: #00c3ff;
+    --accent2: #0088cc;
+    --green: #00e676;
+    --orange: #ff9800;
+    --red: #f44336;
+    --yellow: #ffeb3b;
+    --text: #e8f0ff;
+    --text2: #8899bb;
+    --text3: #4a5f80;
+    --font: 'Barlow Condensed', sans-serif;
+    --font2: 'Barlow', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font2); min-height:100vh; overflow-x:hidden; }
+
+  /* ─── HEADER ─── */
+  header {
+    background: linear-gradient(135deg, #0a0d14 0%, #0f1c35 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px; position: sticky; top:0; z-index:100;
+    box-shadow: 0 2px 24px rgba(0,195,255,0.06);
+  }
+  .logo-area { display:flex; align-items:center; gap:16px; }
+  .logo-area img { height:38px; border-radius:6px; }
+  .logo-title { font-family:var(--font); font-size:22px; font-weight:800; letter-spacing:2px; color:var(--text); }
+  .logo-sub { font-family:var(--font2); font-size:11px; color:var(--text2); letter-spacing:3px; text-transform:uppercase; }
+  .header-right { display:flex; align-items:center; gap:12px; }
+  .clock { font-family:var(--font); font-size:28px; font-weight:700; color:var(--accent); letter-spacing:2px; }
+  .date-disp { font-size:11px; color:var(--text2); text-align:right; letter-spacing:1px; }
+
+  /* ─── NAV ─── */
+  nav {
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    padding: 0 32px; display:flex; gap:4px; align-items:center;
+  }
+  .nav-btn {
+    padding: 14px 24px; background:none; border:none; color:var(--text2);
+    font-family:var(--font); font-size:15px; font-weight:600; letter-spacing:1px;
+    cursor:pointer; transition:all .2s; border-bottom: 3px solid transparent;
+    text-transform:uppercase;
+  }
+  .nav-btn:hover { color:var(--text); }
+  .nav-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .nav-badge {
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--red); color:#fff; font-size:10px; font-weight:700;
+    min-width:18px; height:18px; border-radius:9px; padding:0 5px; margin-left:6px;
+  }
+
+  /* ─── PAGES ─── */
+  .page { display:none; padding:28px 32px; min-height: calc(100vh - 120px); }
+  .page.active { display:block; }
+
+  /* ─── KPI BAR ─── */
+  .kpi-bar { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:24px; }
+  .kpi-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px;
+    display:flex; flex-direction:column; gap:4px;
+    position:relative; overflow:hidden;
+  }
+  .kpi-card::before {
+    content:''; position:absolute; top:0; left:0; width:4px; height:100%;
+    background: var(--kpi-color, var(--accent));
+  }
+  .kpi-label { font-family:var(--font); font-size:11px; font-weight:600; color:var(--text2); letter-spacing:2px; text-transform:uppercase; }
+  .kpi-value { font-family:var(--font); font-size:36px; font-weight:900; color:var(--kpi-color, var(--accent)); line-height:1; }
+  .kpi-sub { font-size:11px; color:var(--text3); }
+
+  /* ─── PAGE 1: CHECKLIST ─── */
+  .p1-toolbar { display:flex; gap:12px; align-items:center; margin-bottom:20px; flex-wrap:wrap; }
+  .search-box {
+    flex:1; min-width:200px; background:var(--card); border:1px solid var(--border2);
+    border-radius:8px; padding:10px 16px; color:var(--text); font-family:var(--font2);
+    font-size:14px; outline:none; transition:border-color .2s;
+  }
+  .search-box:focus { border-color:var(--accent); }
+  .filter-select {
+    background:var(--card); border:1px solid var(--border2); border-radius:8px;
+    padding:10px 14px; color:var(--text); font-family:var(--font2); font-size:13px;
+    outline:none; cursor:pointer;
+  }
+  .btn {
+    padding:10px 20px; border:none; border-radius:8px; cursor:pointer;
+    font-family:var(--font); font-size:14px; font-weight:700; letter-spacing:1px;
+    text-transform:uppercase; transition:all .2s;
+  }
+  .btn-accent { background:var(--accent); color:#000; }
+  .btn-accent:hover { background:#00d9ff; transform:translateY(-1px); }
+  .btn-outline { background:none; border:1px solid var(--border2); color:var(--text2); }
+  .btn-outline:hover { border-color:var(--accent); color:var(--accent); }
+  .btn-green { background:var(--green); color:#000; }
+  .btn-red { background:var(--red); color:#fff; }
+  .btn-sm { padding:6px 14px; font-size:12px; }
+
+  .fleet-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:14px; }
+
+  .unit-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; cursor:pointer;
+    transition: all .25s; position:relative; overflow:hidden;
+  }
+  .unit-card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,195,255,0.12); }
+  .unit-card.status-ok { border-left: 4px solid var(--green); }
+  .unit-card.status-obs { border-left: 4px solid var(--orange); }
+  .unit-card.status-fuera { border-left: 4px solid var(--red); }
+  .unit-card.status-pending { border-left: 4px solid var(--text3); }
+  .unit-card.checked-today::after {
+    content:'✓'; position:absolute; top:10px; right:10px;
+    width:22px; height:22px; border-radius:50%; background:var(--green);
+    color:#000; font-size:12px; font-weight:900; display:flex; align-items:center; justify-content:center;
+  }
+
+  .truck-svg { width:100%; height:70px; margin-bottom:10px; }
+  .unit-placa {
+    font-family:var(--font); font-size:22px; font-weight:900; letter-spacing:2px;
+    color:var(--text); margin-bottom:2px;
+  }
+  .unit-tipo { font-size:11px; color:var(--text2); letter-spacing:1px; text-transform:uppercase; }
+  .unit-ubic { font-size:12px; color:var(--text3); margin-top:4px; }
+  .unit-status-badge {
+    display:inline-block; padding:3px 8px; border-radius:4px;
+    font-family:var(--font); font-size:11px; font-weight:700; letter-spacing:1px;
+    text-transform:uppercase; margin-top:8px;
+  }
+  .badge-op { background:rgba(0,230,118,.15); color:var(--green); border:1px solid rgba(0,230,118,.3); }
+  .badge-obs { background:rgba(255,152,0,.15); color:var(--orange); border:1px solid rgba(255,152,0,.3); }
+  .badge-fuera { background:rgba(244,67,54,.15); color:var(--red); border:1px solid rgba(244,67,54,.3); }
+  .badge-pend { background:rgba(74,95,128,.15); color:var(--text3); border:1px solid rgba(74,95,128,.3); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.75);
+    z-index:500; align-items:center; justify-content:center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 16px; width: min(560px, 96vw); max-height: 92vh;
+    overflow-y: auto; padding: 28px; position:relative;
+    animation: slideUp .25s ease;
+  }
+  @keyframes slideUp { from { transform:translateY(30px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+  .modal-close {
+    position:absolute; top:16px; right:16px; background:none; border:none;
+    color:var(--text2); font-size:24px; cursor:pointer; line-height:1;
+  }
+  .modal-title { font-family:var(--font); font-size:28px; font-weight:900; color:var(--accent); margin-bottom:4px; }
+  .modal-sub { font-size:13px; color:var(--text2); margin-bottom:20px; }
+
+  .form-group { margin-bottom:16px; }
+  .form-label { font-family:var(--font); font-size:13px; font-weight:600; color:var(--text2); letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px; }
+  .form-input, .form-select, .form-textarea {
+    width:100%; background:var(--card2); border:1px solid var(--border2);
+    border-radius:8px; padding:10px 14px; color:var(--text); font-family:var(--font2);
+    font-size:14px; outline:none; transition:border-color .2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--accent); }
+  .form-textarea { resize:vertical; min-height:80px; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  .estado-btns { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .estado-btn {
+    padding:12px; border:2px solid var(--border2); border-radius:8px;
+    background:none; color:var(--text2); cursor:pointer; font-family:var(--font);
+    font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+    transition:all .2s; text-align:center;
+  }
+  .estado-btn.sel-op { border-color:var(--green); background:rgba(0,230,118,.1); color:var(--green); }
+  .estado-btn.sel-obs { border-color:var(--orange); background:rgba(255,152,0,.1); color:var(--orange); }
+  .estado-btn.sel-fuera { border-color:var(--red); background:rgba(244,67,54,.1); color:var(--red); }
+
+  .gravedad-btns { display:flex; gap:8px; }
+  .grav-btn {
+    flex:1; padding:8px; border-radius:6px; border:1px solid var(--border2);
+    background:none; cursor:pointer; font-family:var(--font); font-size:12px;
+    font-weight:700; color:var(--text2); transition:all .2s;
+  }
+  .grav-btn.sel { }
+  .grav-leve.sel { border-color:var(--yellow); background:rgba(255,235,59,.1); color:var(--yellow); }
+  .grav-grave.sel { border-color:var(--orange); background:rgba(255,152,0,.1); color:var(--orange); }
+  .grav-muy.sel { border-color:var(--red); background:rgba(244,67,54,.1); color:var(--red); }
+
+  .modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); }
+
+  /* ─── PAGE 2: REPORTES ─── */
+  .filters-bar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; align-items:center; }
+  .table-wrap { overflow-x:auto; border-radius:10px; border:1px solid var(--border); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  thead { background:var(--bg2); }
+  th { padding:12px 14px; text-align:left; font-family:var(--font); font-size:12px; font-weight:700; color:var(--text2); letter-spacing:1.5px; text-transform:uppercase; white-space:nowrap; border-bottom:1px solid var(--border); }
+  td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:middle; white-space:nowrap; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(0,195,255,.04); }
+  .nivel-badge {
+    padding:4px 10px; border-radius:4px; font-family:var(--font);
+    font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  }
+  .nivel-leve { background:rgba(255,235,59,.15); color:var(--yellow); border:1px solid rgba(255,235,59,.3); }
+  .nivel-grave { background:rgba(255,152,0,.15); color:var(--orange); border:1px solid rgba(255,152,0,.3); }
+  .nivel-muy { background:rgba(244,67,54,.15); color:var(--red); border:1px solid rgba(244,67,54,.3); }
+  .estado-badge {
+    padding:4px 10px; border-radius:4px; font-family:var(--font);
+    font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  }
+  .est-abierto { background:rgba(244,67,54,.15); color:var(--red); border:1px solid rgba(244,67,54,.3); }
+  .est-pendiente { background:rgba(255,152,0,.15); color:var(--orange); border:1px solid rgba(255,152,0,.3); }
+  .est-cerrado { background:rgba(0,230,118,.15); color:var(--green); border:1px solid rgba(0,230,118,.3); }
+
+  /* ─── PAGE 3: HISTORIAL UNIDAD ─── */
+  .unit-selector-bar { display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; align-items:center; }
+  .unit-info-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:12px; padding:24px; margin-bottom:24px;
+    display:grid; grid-template-columns: auto 1fr; gap:24px; align-items:center;
+  }
+  .unit-big-svg { width:120px; }
+  .unit-info-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; }
+  .info-item label { font-family:var(--font); font-size:11px; color:var(--text2); letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:2px; }
+  .info-item span { font-family:var(--font); font-size:18px; font-weight:700; color:var(--text); }
+
+  .timeline { position:relative; padding-left:32px; }
+  .timeline::before { content:''; position:absolute; left:12px; top:0; bottom:0; width:2px; background:var(--border2); }
+  .tl-item { position:relative; margin-bottom:20px; }
+  .tl-dot {
+    position:absolute; left:-26px; top:14px; width:12px; height:12px;
+    border-radius:50%; background:var(--accent); border:2px solid var(--bg3);
+  }
+  .tl-dot.red { background:var(--red); }
+  .tl-dot.orange { background:var(--orange); }
+  .tl-dot.green { background:var(--green); }
+  .tl-card {
+    background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px;
+  }
+  .tl-date { font-family:var(--font); font-size:12px; color:var(--text2); letter-spacing:1px; margin-bottom:4px; }
+  .tl-desc { font-size:14px; color:var(--text); font-weight:500; margin-bottom:8px; }
+  .tl-meta { display:flex; gap:12px; font-size:12px; color:var(--text3); flex-wrap:wrap; }
+
+  /* ─── PAGE 4: DASHBOARD ─── */
+  .dash-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; }
+  .dash-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; }
+  .dash-card-title { font-family:var(--font); font-size:14px; font-weight:700; color:var(--text2); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:16px; }
+  .progress-list { display:flex; flex-direction:column; gap:10px; }
+  .progress-item label { display:flex; justify-content:space-between; font-size:13px; color:var(--text2); margin-bottom:4px; }
+  .progress-bar-wrap { height:6px; background:var(--border2); border-radius:3px; overflow:hidden; }
+  .progress-bar-fill { height:100%; border-radius:3px; transition:width .5s; }
+
+  /* ─── ADD UNIT MODAL ─── */
+  .tipo-select-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .tipo-opt {
+    border:2px solid var(--border2); border-radius:10px; padding:16px 10px;
+    background:none; cursor:pointer; text-align:center; color:var(--text2);
+    font-family:var(--font); font-size:13px; font-weight:700; transition:all .2s;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+  }
+  .tipo-opt:hover, .tipo-opt.selected { border-color:var(--accent); color:var(--accent); background:rgba(0,195,255,.08); }
+  .tipo-opt svg { width:40px; height:30px; }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state { text-align:center; padding:60px 20px; color:var(--text3); }
+  .empty-state svg { width:80px; height:60px; margin-bottom:16px; opacity:.3; }
+  .empty-state p { font-family:var(--font); font-size:16px; letter-spacing:1px; }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position:fixed; bottom:24px; right:24px; background:var(--card2);
+    border:1px solid var(--border2); border-radius:10px; padding:14px 20px;
+    font-family:var(--font2); font-size:14px; color:var(--text);
+    z-index:1000; transform:translateX(200%); transition:transform .3s;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  }
+  .toast.show { transform:translateX(0); }
+  .toast.success { border-left: 4px solid var(--green); }
+  .toast.error { border-left: 4px solid var(--red); }
+
+  /* ─── LOADING ─── */
+  .loading { text-align:center; padding:60px; color:var(--text2); font-family:var(--font); font-size:16px; letter-spacing:2px; }
+  .spinner {
+    width:40px; height:40px; border:3px solid var(--border2); border-top-color:var(--accent);
+    border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+  @media (max-width: 600px) {
+    header, nav { padding: 0 16px; }
+    .page { padding: 16px; }
+    .fleet-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <img src="LOGOMSG.png" alt="MISAGI" onerror="this.style.display='none'">
+    <div>
+      <div class="logo-title">MISAGI FLOTA</div>
+      <div class="logo-sub">Sistema de Gestión de Unidades</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="date-disp" id="dateDisp">Cargando...</div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-btn active" data-page="checklist">
+    📋 Checklist Diario
+    <span class="nav-badge" id="pendBadge" style="display:none">0</span>
+  </button>
+  <button class="nav-btn" data-page="reportes">📊 Reportes</button>
+  <button class="nav-btn" data-page="historial">🔍 Historial por Unidad</button>
+  <button class="nav-btn" data-page="dashboard">📈 Dashboard</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 1: CHECKLIST DIARIO
+═══════════════════════════════════════════════════ -->
+<div id="page-checklist" class="page active">
+  <div class="kpi-bar" id="kpi1">
+    <div class="kpi-card" style="--kpi-color:var(--green)">
+      <div class="kpi-label">Operativas</div>
+      <div class="kpi-value" id="kpi-op">—</div>
+      <div class="kpi-sub">Sin fallas hoy</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--orange)">
+      <div class="kpi-label">Observadas</div>
+      <div class="kpi-value" id="kpi-obs">—</div>
+      <div class="kpi-sub">Con falla activa</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--red)">
+      <div class="kpi-label">Fuera de Servicio</div>
+      <div class="kpi-value" id="kpi-fuera">—</div>
+      <div class="kpi-sub">Inoperativas</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--text3)">
+      <div class="kpi-label">Sin Reportar</div>
+      <div class="kpi-value" id="kpi-pend">—</div>
+      <div class="kpi-sub">Pendientes hoy</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--accent)">
+      <div class="kpi-label">Total Flota</div>
+      <div class="kpi-value" id="kpi-total">—</div>
+      <div class="kpi-sub">Unidades activas</div>
+    </div>
+  </div>
+
+  <div class="p1-toolbar">
+    <input class="search-box" placeholder="🔍  Buscar placa, ubicación..." id="searchBox" oninput="APP.filterFleet()">
+    <select class="filter-select" id="filterTipo" onchange="APP.filterFleet()">
+      <option value="">Todos los tipos</option>
+      <option value="TRACTO">Tracto</option>
+      <option value="M2-MACK">M2 / MACK</option>
+    </select>
+    <select class="filter-select" id="filterEstado" onchange="APP.filterFleet()">
+      <option value="">Todos los estados</option>
+      <option value="OPERATIVO">Operativo</option>
+      <option value="OBSERVADO">Observado</option>
+      <option value="FUERA">Fuera de Servicio</option>
+      <option value="PENDING">Sin Reportar</option>
+    </select>
+    <button class="btn btn-outline" onclick="APP.openAddUnit()">+ Agregar Unidad</button>
+    <button class="btn btn-accent" onclick="APP.exportReport()">↓ Exportar Día</button>
+  </div>
+
+  <div class="fleet-grid" id="fleetGrid">
+    <div class="loading"><div class="spinner"></div>Conectando con Firebase...<br><small style="font-size:11px;color:var(--text3);margin-top:8px;display:block">Si esto no carga, activa Firestore en modo "test" en Firebase Console</small></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 2: REPORTES
+═══════════════════════════════════════════════════ -->
+<div id="page-reportes" class="page">
+  <div class="kpi-bar">
+    <div class="kpi-card" style="--kpi-color:var(--red)">
+      <div class="kpi-label">Correctivos Activos</div>
+      <div class="kpi-value" id="r-activos">—</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--green)">
+      <div class="kpi-label">Cerrados Hoy</div>
+      <div class="kpi-value" id="r-cerrados">—</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--orange)">
+      <div class="kpi-label">Muy Graves</div>
+      <div class="kpi-value" id="r-graves">—</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--accent)">
+      <div class="kpi-label">Costo Total (S/.)</div>
+      <div class="kpi-value" id="r-costo">—</div>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <input class="search-box" style="max-width:220px" placeholder="🔍 Buscar..." id="rSearch" oninput="APP.filterReports()">
+    <select class="filter-select" id="rFilterEstado" onchange="APP.filterReports()">
+      <option value="">Todos los estados</option>
+      <option value="ABIERTO">Abierto</option>
+      <option value="PENDIENTE">Pendiente</option>
+      <option value="CERRADO">Cerrado</option>
+    </select>
+    <select class="filter-select" id="rFilterGrav" onchange="APP.filterReports()">
+      <option value="">Toda gravedad</option>
+      <option value="MUY GRAVE">Muy Grave</option>
+      <option value="GRAVE">Grave</option>
+      <option value="LEVE">Leve</option>
+    </select>
+    <input type="date" class="filter-select" id="rFilterFecha" onchange="APP.filterReports()">
+    <button class="btn btn-accent" onclick="APP.openFallaModal()">+ Nueva Falla</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Fecha</th>
+          <th>Unidad / Placa</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th>Gravedad</th>
+          <th>Estado</th>
+          <th>Técnico</th>
+          <th>Costo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="reportTable">
+        <tr><td colspan="10" class="loading"><div class="spinner"></div>Cargando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 3: HISTORIAL POR UNIDAD
+═══════════════════════════════════════════════════ -->
+<div id="page-historial" class="page">
+  <div class="unit-selector-bar">
+    <input class="search-box" style="max-width:260px" placeholder="🔍 Buscar placa..." id="hSearch" oninput="APP.filterHUnits()">
+    <select class="filter-select" id="hUnitSelect" onchange="APP.loadUnitHistory(this.value)" style="min-width:180px">
+      <option value="">— Seleccionar unidad —</option>
+    </select>
+    <span id="hUnitCount" style="color:var(--text2);font-size:13px;"></span>
+  </div>
+  <div id="historialContent">
+    <div class="empty-state">
+      <svg viewBox="0 0 100 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="30" width="60" height="30" rx="4" fill="currentColor" opacity=".4"/>
+        <rect x="25" y="20" width="30" height="20" rx="3" fill="currentColor" opacity=".6"/>
+        <circle cx="18" cy="62" r="7" fill="currentColor"/>
+        <circle cx="52" cy="62" r="7" fill="currentColor"/>
+      </svg>
+      <p>Selecciona una unidad para ver su historial completo</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 4: DASHBOARD
+═══════════════════════════════════════════════════ -->
+<div id="page-dashboard" class="page">
+  <div class="dash-grid" id="dashGrid">
+    <div class="loading"><div class="spinner"></div>Cargando...</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL: CHECKLIST DIARIO
+═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="checklistModal">
+  <div class="modal">
+    <button class="modal-close" onclick="APP.closeModal('checklistModal')">×</button>
+    <div class="modal-title" id="mTitle">CFF841</div>
+    <div class="modal-sub" id="mSub">Tracto · Espinar · Conductor: —</div>
+
+    <div class="form-group">
+      <div class="form-label">Estado de la Unidad Hoy</div>
+      <div class="estado-btns">
+        <button class="estado-btn" id="btn-op" onclick="APP.selectEstado('OPERATIVO')">✅ Operativo</button>
+        <button class="estado-btn" id="btn-obs" onclick="APP.selectEstado('OBSERVADO')">⚠️ Observado</button>
+        <button class="estado-btn" id="btn-fuera" onclick="APP.selectEstado('FUERA')">🛑 Fuera Servicio</button>
+      </div>
+    </div>
+
+    <div id="fallaFields" style="display:none">
+      <div class="form-group">
+        <div class="form-label">Descripción de la Falla</div>
+        <textarea class="form-textarea" id="mDesc" placeholder="Describe el problema..."></textarea>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Nivel de Gravedad</div>
+        <div class="gravedad-btns">
+          <button class="grav-btn grav-leve" onclick="APP.selectGrav('LEVE')">🟡 LEVE</button>
+          <button class="grav-btn grav-grave" onclick="APP.selectGrav('GRAVE')">🟠 GRAVE</button>
+          <button class="grav-btn grav-muy" onclick="APP.selectGrav('MUY GRAVE')">🔴 MUY GRAVE</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Acción Correctiva</div>
+          <input class="form-input" id="mAccion" placeholder="Qué se hará...">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Técnico / Taller</div>
+          <input class="form-input" id="mTecnico" placeholder="Nombre del técnico">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Costo Estimado (S/.)</div>
+          <input class="form-input" type="number" id="mCosto" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Estado del Correctivo</div>
+          <select class="form-select" id="mEstado">
+            <option value="ABIERTO">Abierto</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="CERRADO">Cerrado</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Kilometraje Actual</div>
+      <input class="form-input" type="number" id="mKm" placeholder="Ingrese KM actual">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Observaciones Adicionales</div>
+      <textarea class="form-textarea" id="mObs" placeholder="Notas, observaciones..." style="min-height:60px"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="APP.closeModal('checklistModal')">Cancelar</button>
+      <button class="btn btn-green" onclick="APP.saveAllOk()">✓ Todo OK Rápido</button>
+      <button class="btn btn-accent" onclick="APP.saveChecklist()">💾 Guardar Reporte</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL: AGREGAR NUEVA UNIDAD
+═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="addUnitModal">
+  <div class="modal">
+    <button class="modal-close" onclick="APP.closeModal('addUnitModal')">×</button>
+    <div class="modal-title">Nueva Unidad</div>
+    <div class="modal-sub">Registrar una unidad nueva a la flota</div>
+
+    <div class="form-group">
+      <div class="form-label">Tipo de Unidad</div>
+      <div class="tipo-select-grid">
+        <button class="tipo-opt" onclick="APP.selectTipo('TRACTO')" id="tipo-tracto">
+          <svg viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="20" width="45" height="22" rx="3" fill="currentColor" opacity=".7"/>
+            <rect x="47" y="14" width="28" height="28" rx="3" fill="currentColor"/>
+            <rect x="50" y="17" width="22" height="14" rx="2" fill="#0a0d14" opacity=".5"/>
+            <circle cx="13" cy="44" r="5" fill="currentColor"/>
+            <circle cx="60" cy="44" r="5" fill="currentColor"/>
+            <circle cx="72" cy="44" r="5" fill="currentColor"/>
+          </svg>
+          Tracto
+        </button>
+        <button class="tipo-opt" onclick="APP.selectTipo('TOLVA')" id="tipo-tolva">
+          <svg viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="20" width="75" height="20" rx="3" fill="currentColor" opacity=".7"/>
+            <polygon points="10,20 70,20 65,8 15,8" fill="currentColor" opacity=".5"/>
+            <circle cx="15" cy="44" r="5" fill="currentColor"/>
+            <circle cx="65" cy="44" r="5" fill="currentColor"/>
+          </svg>
+          Tolva
+        </button>
+        <button class="tipo-opt" onclick="APP.selectTipo('M2-MACK')" id="tipo-m2">
+          <svg viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="18" width="50" height="22" rx="3" fill="currentColor" opacity=".7"/>
+            <rect x="52" y="10" width="24" height="30" rx="3" fill="currentColor"/>
+            <rect x="55" y="13" width="18" height="12" rx="2" fill="#0a0d14" opacity=".5"/>
+            <circle cx="15" cy="44" r="5" fill="currentColor"/>
+            <circle cx="38" cy="44" r="5" fill="currentColor"/>
+            <circle cx="65" cy="44" r="5" fill="currentColor"/>
+          </svg>
+          M2 / MACK
+        </button>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Placa</div>
+        <input class="form-input" id="nu-placa" placeholder="Ej: ABC123" style="text-transform:uppercase">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Marca</div>
+        <input class="form-input" id="nu-marca" placeholder="Ej: Scania, Mack...">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Modelo</div>
+        <input class="form-input" id="nu-modelo" placeholder="Ej: M2-112">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Año</div>
+        <input class="form-input" type="number" id="nu-anio" placeholder="Ej: 2020">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Ubicación</div>
+        <input class="form-input" id="nu-ubicacion" placeholder="Base Espinar, Bambas...">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Conductor</div>
+        <input class="form-input" id="nu-conductor" placeholder="Nombre del conductor">
+      </div>
+    </div>
+    <div id="nu-tolva-group" class="form-group" style="display:none">
+      <div class="form-label">Placa Tolva Asociada</div>
+      <input class="form-input" id="nu-tolva" placeholder="Ej: XYZ999">
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="APP.closeModal('addUnitModal')">Cancelar</button>
+      <button class="btn btn-accent" onclick="APP.saveNewUnit()">💾 Registrar Unidad</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══ FIREBASE + APP LOGIC ═══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, addDoc, getDocs, onSnapshot, query, orderBy, where, updateDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDAdlSkl1xLkIZ6aIQOYZ9xMeZkzIvynqw",
+  authDomain: "misagi-flota.firebaseapp.com",
+  projectId: "misagi-flota",
+  storageBucket: "misagi-flota.firebasestorage.app",
+  messagingSenderId: "274025736984",
+  appId: "1:274025736984:web:837cf3417e6bec8634cc6d"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ─── FLOTA BASE (inicial del Excel) ───
+const FLOTA_INICIAL = [
+  {placa:"CFF841",tipo:"TRACTO",tolva:"BDA983",ubicacion:"ESPINAR",estado:"OPERATIVO",conductor:""},
+  {placa:"CFG704",tipo:"TRACTO",tolva:"ANF983",ubicacion:"ESPINAR",estado:"OBSERVADO",conductor:"CHAPARRO"},
+  {placa:"CDJ712",tipo:"TRACTO",tolva:"VGI993",ubicacion:"AREQUIPA",estado:"OPERATIVO",conductor:"HUMBERT PACOMPILLA"},
+  {placa:"CDI829",tipo:"TRACTO",tolva:"Z3P982",ubicacion:"ESPINAR",estado:"OPERATIVO",conductor:"ELMER MALLE FLORES"},
+  {placa:"BWW797",tipo:"TRACTO",tolva:"BCZ999",ubicacion:"AREQUIPA",estado:"OPERATIVO",conductor:""},
+  {placa:"BWU917",tipo:"TRACTO",tolva:"AFO999",ubicacion:"ESPINAR",estado:"OBSERVADO",conductor:"RENE KANA"},
+  {placa:"AKZ901",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"AKZ938",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"LIMA",estado:"OPERATIVO"},
+  {placa:"AMI947",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"AMK712",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AML809",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANB864",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"P. WINCHO TRACTO",estado:"OPERATIVO"},
+  {placa:"ANB865",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANI927",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANJ907",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANJ925",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"ANK766",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"ANK794",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANK888",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"ANK933",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"ATT769",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ATT770",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ATT771",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ATT799",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ATU728",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ATU847",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS TRACTO",estado:"OPERATIVO"},
+  {placa:"ATU848",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ATU943",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AUC923",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AUD778",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AUD907",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AUD928",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWL834",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"AWL896",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWM709",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"AWM761",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"P. CONGUYA",estado:"OPERATIVO"},
+  {placa:"AWM842",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWM902",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWN884",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWQ834",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"AWT947",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWU703",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWU742",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"AWU756",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWU762",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWU819",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"P. CONGUYA TRACTO",estado:"OPERATIVO"},
+  {placa:"AWU821",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWU871",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWU879",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWU891",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWU892",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWU902",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWU903",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWV724",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWV730",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWV731",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"AWV733",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWV752",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AWV760",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AXB935",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AXC749",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AXC766",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AXC865",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AXD700",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"ATU705",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"APL856",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"PILLONES",estado:"OPERATIVO"},
+  {placa:"APM730",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"APM795",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"APM832",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"APM867",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"APM877",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"APM879",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"APM903",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"APM918",tipo:"M2-MACK",marca:"MACK",modelo:"CXU613E",ubicacion:"P. CONGUYA",estado:"OPERATIVO"},
+  {placa:"AMJ785",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"AMJ936",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANB940",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANC771",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"VELILLE",estado:"OPERATIVO"},
+  {placa:"ANJ786",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANK780",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANK796",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANK934",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANS927",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANT752",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANT768",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS TRACTO",estado:"OPERATIVO"},
+  {placa:"ANT769",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+  {placa:"ANT906",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BAMBAS PCC",estado:"OPERATIVO"},
+  {placa:"AWN796",tipo:"M2-MACK",marca:"FREIGHTLINER",modelo:"M2-112",ubicacion:"BASE ESPINAR",estado:"OPERATIVO"},
+];
+
+// ─── STATE ───
+let allUnits = [];       // from Firestore 'unidades'
+let allFallas = [];      // from Firestore 'fallas'
+let todayChecks = {};    // placa -> check doc for today
+let currentUnit = null;  // for modal
+let selectedEstado = ''; 
+let selectedGrav = '';
+let selectedTipoNuevo = '';
+const todayStr = new Date().toISOString().split('T')[0];
+
+// ─── INIT ───
+async function init() {
+  startClock();
+  await seedUnitsIfEmpty();
+  listenUnits();
+  listenFallas();
+  listenTodayChecks();
+}
+
+async function seedUnitsIfEmpty() {
+  try {
+    const snap = await getDocs(collection(db, 'unidades'));
+    if (snap.empty) {
+      showToast('Inicializando flota...', 'success');
+      for (const u of FLOTA_INICIAL) {
+        await setDoc(doc(db, 'unidades', u.placa), {
+          ...u, activo: true, creadoEn: serverTimestamp()
+        });
+      }
+      showToast(`Flota cargada: ${FLOTA_INICIAL.length} unidades`, 'success');
+    }
+  } catch(e) {
+    document.getElementById('fleetGrid').innerHTML = `
+      <div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--red)">
+        <div style="font-size:32px;margin-bottom:12px">⚠️</div>
+        <div style="font-family:var(--font);font-size:18px;font-weight:700;margin-bottom:8px">Error de conexión Firebase</div>
+        <div style="font-size:13px;color:var(--text2);max-width:400px;margin:0 auto">
+          Ve a <strong>Firebase Console → Firestore → Reglas</strong> y cambia a modo test:<br><br>
+          <code style="background:var(--card2);padding:8px 12px;border-radius:6px;display:inline-block;font-size:12px">allow read, write: if true;</code>
+        </div>
+      </div>`;
+    console.error('Firebase error:', e);
+  }
+}
+
+function listenUnits() {
+  onSnapshot(collection(db, 'unidades'), snap => {
+    allUnits = snap.docs.map(d => ({id:d.id, ...d.data()}))
+      .filter(u => u.activo !== false)
+      .sort((a,b) => a.placa.localeCompare(b.placa));
+    renderFleet();
+    updateHistorialSelect();
+    updateKPIs();
+  });
+}
+
+function listenFallas() {
+  const q = query(collection(db, 'fallas'), orderBy('fechaCreacion', 'desc'));
+  onSnapshot(q, snap => {
+    allFallas = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    renderReports();
+    updateKPIs();
+    updateDashboard();
+  });
+}
+
+function listenTodayChecks() {
+  const q = query(collection(db, 'checklist_diario'), where('fecha', '==', todayStr));
+  onSnapshot(q, snap => {
+    todayChecks = {};
+    snap.docs.forEach(d => {
+      const dat = d.data();
+      todayChecks[dat.placa] = {id: d.id, ...dat};
+    });
+    renderFleet();
+    updateKPIs();
+  });
+}
+
+// ─── CLOCK ───
+function startClock() {
+  const clockEl = document.getElementById('clock');
+  const dateEl = document.getElementById('dateDisp');
+  function tick() {
+    const now = new Date();
+    clockEl.textContent = now.toLocaleTimeString('es-PE');
+    const opts = {weekday:'long', year:'numeric', month:'long', day:'numeric'};
+    dateEl.textContent = now.toLocaleDateString('es-PE', opts);
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+// ─── TRUCK SVG ───
+function truckSVG(tipo, color='#00c3ff') {
+  if (tipo === 'TRACTO') return `
+    <svg class="truck-svg" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="30" width="110" height="34" rx="4" fill="${color}" opacity=".2" stroke="${color}" stroke-width="1.5"/>
+      <rect x="114" y="18" width="76" height="46" rx="4" fill="${color}" opacity=".35" stroke="${color}" stroke-width="1.5"/>
+      <rect x="120" y="22" width="62" height="24" rx="3" fill="${color}" opacity=".15"/>
+      <line x1="148" y1="22" x2="148" y2="46" stroke="${color}" stroke-width="1" opacity=".4"/>
+      <rect x="4" y="54" width="186" height="8" rx="0" fill="${color}" opacity=".1"/>
+      <circle cx="30" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="30" cy="66" r="3" fill="${color}" opacity=".6"/>
+      <circle cx="72" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="72" cy="66" r="3" fill="${color}" opacity=".6"/>
+      <circle cx="150" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="150" cy="66" r="3" fill="${color}" opacity=".6"/>
+      <circle cx="175" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="175" cy="66" r="3" fill="${color}" opacity=".6"/>
+      <rect x="186" y="36" width="10" height="8" rx="2" fill="${color}" opacity=".5"/>
+    </svg>`;
+  if (tipo === 'TOLVA') return `
+    <svg class="truck-svg" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="30" width="192" height="32" rx="4" fill="${color}" opacity=".2" stroke="${color}" stroke-width="1.5"/>
+      <polygon points="20,30 180,30 170,12 30,12" fill="${color}" opacity=".25" stroke="${color}" stroke-width="1.5"/>
+      <circle cx="30" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="30" cy="66" r="3" fill="${color}" opacity=".6"/>
+      <circle cx="80" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="80" cy="66" r="3" fill="${color}" opacity=".6"/>
+      <circle cx="120" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="120" cy="66" r="3" fill="${color}" opacity=".6"/>
+      <circle cx="170" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="170" cy="66" r="3" fill="${color}" opacity=".6"/>
+    </svg>`;
+  return `
+    <svg class="truck-svg" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="26" width="130" height="36" rx="4" fill="${color}" opacity=".2" stroke="${color}" stroke-width="1.5"/>
+      <rect x="134" y="14" width="60" height="48" rx="4" fill="${color}" opacity=".35" stroke="${color}" stroke-width="1.5"/>
+      <rect x="139" y="18" width="50" height="22" rx="3" fill="${color}" opacity=".15"/>
+      <circle cx="30" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="30" cy="66" r="3" fill="${color}" opacity=".6"/>
+      <circle cx="90" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="90" cy="66" r="3" fill="${color}" opacity=".6"/>
+      <circle cx="155" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="155" cy="66" r="3" fill="${color}" opacity=".6"/>
+      <circle cx="182" cy="66" r="9" fill="none" stroke="${color}" stroke-width="2.5"/>
+      <circle cx="182" cy="66" r="3" fill="${color}" opacity=".6"/>
+    </svg>`;
+}
+
+function statusColor(estado) {
+  if (estado === 'OPERATIVO') return 'var(--green)';
+  if (estado === 'OBSERVADO') return 'var(--orange)';
+  if (estado === 'FUERA') return 'var(--red)';
+  return 'var(--text3)';
+}
+
+// ─── RENDER FLEET ───
+function filterFleet() { renderFleet(); }
+function renderFleet() {
+  const grid = document.getElementById('fleetGrid');
+  const search = document.getElementById('searchBox')?.value.toLowerCase() || '';
+  const filterTipo = document.getElementById('filterTipo')?.value || '';
+  const filterEst = document.getElementById('filterEstado')?.value || '';
+
+  let units = allUnits.filter(u => {
+    const matchSearch = !search || u.placa.toLowerCase().includes(search) || (u.ubicacion||'').toLowerCase().includes(search);
+    const matchTipo = !filterTipo || u.tipo === filterTipo;
+    const check = todayChecks[u.placa];
+    const estadoHoy = check ? check.estado : 'PENDING';
+    const matchEst = !filterEst || estadoHoy === filterEst;
+    return matchSearch && matchTipo && matchEst;
+  });
+
+  if (!units.length) {
+    grid.innerHTML = `<div class="empty-state"><p>No se encontraron unidades</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = units.map(u => {
+    const check = todayChecks[u.placa];
+    const estadoHoy = check ? check.estado : 'PENDING';
+    const color = estadoHoy === 'OPERATIVO' ? 'var(--green)' : estadoHoy === 'OBSERVADO' ? 'var(--orange)' : estadoHoy === 'FUERA' ? 'var(--red)' : 'var(--text3)';
+    const statusClass = estadoHoy === 'OPERATIVO' ? 'status-ok' : estadoHoy === 'OBSERVADO' ? 'status-obs' : estadoHoy === 'FUERA' ? 'status-fuera' : 'status-pending';
+    const badgeClass = estadoHoy === 'OPERATIVO' ? 'badge-op' : estadoHoy === 'OBSERVADO' ? 'badge-obs' : estadoHoy === 'FUERA' ? 'badge-fuera' : 'badge-pend';
+    const badgeLabel = estadoHoy === 'OPERATIVO' ? 'Operativo' : estadoHoy === 'OBSERVADO' ? 'Observado' : estadoHoy === 'FUERA' ? 'Fuera de Servicio' : 'Sin reportar';
+    const checkedClass = check ? 'checked-today' : '';
+
+    return `<div class="unit-card ${statusClass} ${checkedClass}" onclick="APP.openChecklist('${u.placa}')">
+      ${truckSVG(u.tipo, color.replace('var(','').replace(')','') === '--green' ? '#00e676' : color.replace('var(','').replace(')','') === '--orange' ? '#ff9800' : color.replace('var(','').replace(')','') === '--red' ? '#f44336' : '#4a5f80')}
+      <div class="unit-placa">${u.placa}</div>
+      <div class="unit-tipo">${u.tipo}${u.tolva ? ` · ${u.tolva}` : ''}</div>
+      <div class="unit-ubic">${u.ubicacion || '—'}</div>
+      <span class="unit-status-badge ${badgeClass}">${badgeLabel}</span>
+    </div>`;
+  }).join('');
+
+  // update pending badge
+  const pend = allUnits.filter(u => !todayChecks[u.placa]).length;
+  const badge = document.getElementById('pendBadge');
+  if (pend > 0) { badge.textContent = pend; badge.style.display = ''; }
+  else badge.style.display = 'none';
+}
+
+function updateKPIs() {
+  const op = allUnits.filter(u => (todayChecks[u.placa]||{}).estado === 'OPERATIVO').length;
+  const obs = allUnits.filter(u => (todayChecks[u.placa]||{}).estado === 'OBSERVADO').length;
+  const fuera = allUnits.filter(u => (todayChecks[u.placa]||{}).estado === 'FUERA').length;
+  const pend = allUnits.filter(u => !todayChecks[u.placa]).length;
+  document.getElementById('kpi-op').textContent = op;
+  document.getElementById('kpi-obs').textContent = obs;
+  document.getElementById('kpi-fuera').textContent = fuera;
+  document.getElementById('kpi-pend').textContent = pend;
+  document.getElementById('kpi-total').textContent = allUnits.length;
+
+  // reportes kpis
+  const activos = allFallas.filter(f => f.estadoFalla === 'ABIERTO').length;
+  const cerradosHoy = allFallas.filter(f => f.estadoFalla === 'CERRADO' && f.fecha === todayStr).length;
+  const graves = allFallas.filter(f => f.gravedad === 'MUY GRAVE' && f.estadoFalla !== 'CERRADO').length;
+  const costo = allFallas.reduce((acc, f) => acc + (parseFloat(f.costo) || 0), 0);
+  document.getElementById('r-activos').textContent = activos;
+  document.getElementById('r-cerrados').textContent = cerradosHoy;
+  document.getElementById('r-graves').textContent = graves;
+  document.getElementById('r-costo').textContent = costo.toFixed(0);
+}
+
+// ─── CHECKLIST MODAL ───
+function openChecklist(placa) {
+  currentUnit = allUnits.find(u => u.placa === placa);
+  if (!currentUnit) return;
+  const check = todayChecks[placa];
+  document.getElementById('mTitle').textContent = placa;
+  document.getElementById('mSub').textContent =
+    `${currentUnit.tipo} · ${currentUnit.ubicacion || '—'} · Conductor: ${currentUnit.conductor || '—'}`;
+  selectedEstado = check ? check.estado : '';
+  selectedGrav = check ? check.gravedad : '';
+  document.getElementById('mDesc').value = check?.descripcion || '';
+  document.getElementById('mAccion').value = check?.accionCorrectiva || '';
+  document.getElementById('mTecnico').value = check?.tecnico || '';
+  document.getElementById('mCosto').value = check?.costo || '';
+  document.getElementById('mKm').value = check?.km || '';
+  document.getElementById('mObs').value = check?.observaciones || '';
+  document.getElementById('mEstado').value = check?.estadoFalla || 'ABIERTO';
+  updateEstadoBtns();
+  updateGravBtns();
+  toggleFallaFields();
+  document.getElementById('checklistModal').classList.add('open');
+}
+
+function selectEstado(e) {
+  selectedEstado = e;
+  updateEstadoBtns();
+  toggleFallaFields();
+}
+function updateEstadoBtns() {
+  document.getElementById('btn-op').className = 'estado-btn' + (selectedEstado === 'OPERATIVO' ? ' sel-op' : '');
+  document.getElementById('btn-obs').className = 'estado-btn' + (selectedEstado === 'OBSERVADO' ? ' sel-obs' : '');
+  document.getElementById('btn-fuera').className = 'estado-btn' + (selectedEstado === 'FUERA' ? ' sel-fuera' : '');
+}
+function toggleFallaFields() {
+  document.getElementById('fallaFields').style.display = (selectedEstado === 'OBSERVADO' || selectedEstado === 'FUERA') ? 'block' : 'none';
+}
+function selectGrav(g) {
+  selectedGrav = g; updateGravBtns();
+}
+function updateGravBtns() {
+  document.querySelectorAll('.grav-btn').forEach(b => b.classList.remove('sel'));
+  if (selectedGrav === 'LEVE') document.querySelector('.grav-leve').classList.add('sel');
+  if (selectedGrav === 'GRAVE') document.querySelector('.grav-grave').classList.add('sel');
+  if (selectedGrav === 'MUY GRAVE') document.querySelector('.grav-muy').classList.add('sel');
+}
+
+async function saveAllOk() {
+  if (!currentUnit) return;
+  await saveCheckDoc(currentUnit.placa, { estado: 'OPERATIVO', gravedad: '', descripcion: 'Sin fallas. Todo OK.', observaciones: document.getElementById('mObs').value });
+  closeModal('checklistModal');
+  showToast(`✅ ${currentUnit.placa} — Todo OK registrado`, 'success');
+}
+
+async function saveChecklist() {
+  if (!currentUnit) return;
+  if (!selectedEstado) { showToast('Selecciona el estado de la unidad', 'error'); return; }
+  if ((selectedEstado === 'OBSERVADO' || selectedEstado === 'FUERA') && !document.getElementById('mDesc').value.trim()) {
+    showToast('Describe la falla detectada', 'error'); return;
+  }
+  const data = {
+    estado: selectedEstado,
+    gravedad: selectedGrav,
+    descripcion: document.getElementById('mDesc').value,
+    accionCorrectiva: document.getElementById('mAccion').value,
+    tecnico: document.getElementById('mTecnico').value,
+    costo: parseFloat(document.getElementById('mCosto').value) || 0,
+    km: parseInt(document.getElementById('mKm').value) || 0,
+    observaciones: document.getElementById('mObs').value,
+    estadoFalla: document.getElementById('mEstado').value,
+  };
+  await saveCheckDoc(currentUnit.placa, data);
+  // also add to fallas if has issue
+  if ((selectedEstado === 'OBSERVADO' || selectedEstado === 'FUERA') && data.descripcion) {
+    await addDoc(collection(db, 'fallas'), {
+      placa: currentUnit.placa,
+      tipo: currentUnit.tipo,
+      ubicacion: currentUnit.ubicacion || '',
+      fecha: todayStr,
+      descripcion: data.descripcion,
+      gravedad: data.gravedad || 'LEVE',
+      accionCorrectiva: data.accionCorrectiva,
+      tecnico: data.tecnico,
+      costo: data.costo,
+      estadoFalla: data.estadoFalla,
+      fechaCreacion: serverTimestamp(),
+    });
+  }
+  closeModal('checklistModal');
+  showToast(`💾 ${currentUnit.placa} — Reporte guardado`, 'success');
+}
+
+async function saveCheckDoc(placa, data) {
+  const existing = todayChecks[placa];
+  const docData = { placa, fecha: todayStr, timestamp: serverTimestamp(), ...data };
+  if (existing) {
+    await updateDoc(doc(db, 'checklist_diario', existing.id), docData);
+  } else {
+    await addDoc(collection(db, 'checklist_diario'), docData);
+  }
+}
+
+// ─── ADD UNIT ───
+function openAddUnit() { document.getElementById('addUnitModal').classList.add('open'); }
+function selectTipo(t) {
+  selectedTipoNuevo = t;
+  document.querySelectorAll('.tipo-opt').forEach(b => b.classList.remove('selected'));
+  document.getElementById(`tipo-${t === 'M2-MACK' ? 'm2' : t.toLowerCase()}`).classList.add('selected');
+  document.getElementById('nu-tolva-group').style.display = t === 'TRACTO' ? 'block' : 'none';
+}
+async function saveNewUnit() {
+  if (!selectedTipoNuevo) { showToast('Selecciona el tipo de unidad', 'error'); return; }
+  const placa = document.getElementById('nu-placa').value.trim().toUpperCase();
+  if (!placa) { showToast('Ingresa la placa', 'error'); return; }
+  const data = {
+    placa, tipo: selectedTipoNuevo, activo: true,
+    marca: document.getElementById('nu-marca').value,
+    modelo: document.getElementById('nu-modelo').value,
+    anio: document.getElementById('nu-anio').value,
+    ubicacion: document.getElementById('nu-ubicacion').value,
+    conductor: document.getElementById('nu-conductor').value,
+    tolva: selectedTipoNuevo === 'TRACTO' ? document.getElementById('nu-tolva').value : '',
+    creadoEn: serverTimestamp(),
+  };
+  await setDoc(doc(db, 'unidades', placa), data);
+  closeModal('addUnitModal');
+  showToast(`🚛 Unidad ${placa} registrada`, 'success');
+}
+
+// ─── REPORTS ───
+function filterReports() { renderReports(); }
+function renderReports() {
+  const tbody = document.getElementById('reportTable');
+  const search = document.getElementById('rSearch')?.value.toLowerCase() || '';
+  const fEst = document.getElementById('rFilterEstado')?.value || '';
+  const fGrav = document.getElementById('rFilterGrav')?.value || '';
+  const fFecha = document.getElementById('rFilterFecha')?.value || '';
+
+  let fallas = allFallas.filter(f => {
+    const ms = !search || f.placa?.toLowerCase().includes(search) || f.descripcion?.toLowerCase().includes(search);
+    const me = !fEst || f.estadoFalla === fEst;
+    const mg = !fGrav || f.gravedad === fGrav;
+    const mf = !fFecha || f.fecha === fFecha;
+    return ms && me && mg && mf;
+  });
+
+  if (!fallas.length) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text3)">No hay registros</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = fallas.map((f, i) => {
+    const gClass = f.gravedad === 'MUY GRAVE' ? 'nivel-muy' : f.gravedad === 'GRAVE' ? 'nivel-grave' : 'nivel-leve';
+    const eClass = f.estadoFalla === 'ABIERTO' ? 'est-abierto' : f.estadoFalla === 'PENDIENTE' ? 'est-pendiente' : 'est-cerrado';
+    return `<tr>
+      <td style="color:var(--text2)">${i+1}</td>
+      <td>${f.fecha || '—'}</td>
+      <td><strong>${f.placa || '—'}</strong></td>
+      <td style="color:var(--text2)">${f.tipo || '—'}</td>
+      <td style="max-width:200px;white-space:normal;font-size:12px">${f.descripcion || '—'}</td>
+      <td><span class="nivel-badge ${gClass}">${f.gravedad || '—'}</span></td>
+      <td><span class="estado-badge ${eClass}">${f.estadoFalla || '—'}</span></td>
+      <td style="color:var(--text2)">${f.tecnico || '—'}</td>
+      <td>S/.${(parseFloat(f.costo)||0).toFixed(2)}</td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="APP.editFalla('${f.id}')">Editar</button>
+        <button class="btn btn-sm" style="background:rgba(0,230,118,.15);color:var(--green);border:1px solid rgba(0,230,118,.3)" onclick="APP.closeFalla('${f.id}')">✓ Cerrar</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function closeFalla(id) {
+  await updateDoc(doc(db, 'fallas', id), { estadoFalla: 'CERRADO' });
+  showToast('Falla marcada como cerrada ✓', 'success');
+}
+function editFalla(id) {
+  const f = allFallas.find(x => x.id === id);
+  if (!f) return;
+  // prefill modal
+  currentUnit = allUnits.find(u => u.placa === f.placa) || { placa: f.placa, tipo: f.tipo, ubicacion: f.ubicacion, conductor: '' };
+  document.getElementById('mTitle').textContent = f.placa;
+  document.getElementById('mSub').textContent = `Editando reporte de falla`;
+  selectedEstado = 'OBSERVADO';
+  selectedGrav = f.gravedad;
+  document.getElementById('mDesc').value = f.descripcion || '';
+  document.getElementById('mAccion').value = f.accionCorrectiva || '';
+  document.getElementById('mTecnico').value = f.tecnico || '';
+  document.getElementById('mCosto').value = f.costo || '';
+  document.getElementById('mEstado').value = f.estadoFalla || 'ABIERTO';
+  document.getElementById('mKm').value = '';
+  document.getElementById('mObs').value = '';
+  updateEstadoBtns(); updateGravBtns(); toggleFallaFields();
+  document.getElementById('checklistModal').classList.add('open');
+}
+function openFallaModal() { document.getElementById('checklistModal').classList.add('open'); }
+
+// ─── HISTORIAL POR UNIDAD ───
+function updateHistorialSelect() {
+  const sel = document.getElementById('hUnitSelect');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Seleccionar unidad —</option>';
+  allUnits.forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u.placa; opt.textContent = `${u.placa} (${u.tipo})`;
+    sel.appendChild(opt);
+  });
+  if (current) sel.value = current;
+  document.getElementById('hUnitCount').textContent = `${allUnits.length} unidades en flota`;
+}
+
+function filterHUnits() {
+  const search = document.getElementById('hSearch').value.toLowerCase();
+  const sel = document.getElementById('hUnitSelect');
+  Array.from(sel.options).forEach(opt => {
+    opt.style.display = !search || opt.text.toLowerCase().includes(search) ? '' : 'none';
+  });
+}
+
+async function loadUnitHistory(placa) {
+  if (!placa) return;
+  const unit = allUnits.find(u => u.placa === placa);
+  const container = document.getElementById('historialContent');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando historial...</div>';
+
+  const fallas = allFallas.filter(f => f.placa === placa).sort((a,b) => (b.fecha||'').localeCompare(a.fecha||''));
+
+  const lastCheck = todayChecks[placa];
+  const estadoColor = lastCheck?.estado === 'OPERATIVO' ? '#00e676' : lastCheck?.estado === 'OBSERVADO' ? '#ff9800' : lastCheck?.estado === 'FUERA' ? '#f44336' : '#4a5f80';
+
+  container.innerHTML = `
+    <div class="unit-info-card">
+      ${truckSVG(unit?.tipo || 'M2-MACK', estadoColor)}
+      <div>
+        <div style="font-family:var(--font);font-size:32px;font-weight:900;color:var(--text)">${placa}</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px">${unit?.tipo || '—'} · ${unit?.marca || ''} ${unit?.modelo || ''}</div>
+        <div class="unit-info-grid">
+          <div class="info-item"><label>Ubicación</label><span>${unit?.ubicacion || '—'}</span></div>
+          <div class="info-item"><label>Conductor</label><span>${unit?.conductor || '—'}</span></div>
+          <div class="info-item"><label>Total Fallas</label><span>${fallas.length}</span></div>
+          <div class="info-item"><label>Costo Acum.</label><span>S/.${fallas.reduce((a,f)=>a+(parseFloat(f.costo)||0),0).toFixed(0)}</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="font-family:var(--font);font-size:13px;font-weight:700;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Historial de Fallas (${fallas.length})</div>
+    ${fallas.length === 0
+      ? '<div class="empty-state"><p>Esta unidad no tiene fallas registradas 🎉</p></div>'
+      : `<div class="timeline">${fallas.map(f => {
+        const dotColor = f.gravedad === 'MUY GRAVE' ? 'red' : f.gravedad === 'GRAVE' ? 'orange' : 'green';
+        const gClass = f.gravedad === 'MUY GRAVE' ? 'nivel-muy' : f.gravedad === 'GRAVE' ? 'nivel-grave' : 'nivel-leve';
+        const eClass = f.estadoFalla === 'ABIERTO' ? 'est-abierto' : f.estadoFalla === 'PENDIENTE' ? 'est-pendiente' : 'est-cerrado';
+        return `<div class="tl-item">
+          <div class="tl-dot ${dotColor}"></div>
+          <div class="tl-card">
+            <div class="tl-date">${f.fecha || '—'}</div>
+            <div class="tl-desc">${f.descripcion || '—'}</div>
+            <div class="tl-meta">
+              <span class="nivel-badge ${gClass}">${f.gravedad || '—'}</span>
+              <span class="estado-badge ${eClass}">${f.estadoFalla || '—'}</span>
+              ${f.tecnico ? `<span>👤 ${f.tecnico}</span>` : ''}
+              ${f.costo ? `<span>S/. ${f.costo}</span>` : ''}
+              ${f.accionCorrectiva ? `<span>🔧 ${f.accionCorrectiva}</span>` : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('')}</div>`
+    }`;
+}
+
+// ─── DASHBOARD ───
+function updateDashboard() {
+  const container = document.getElementById('dashGrid');
+  const total = allUnits.length;
+  const op = allUnits.filter(u => (todayChecks[u.placa]||{}).estado === 'OPERATIVO').length;
+  const obs = allUnits.filter(u => (todayChecks[u.placa]||{}).estado === 'OBSERVADO').length;
+  const fuera = allUnits.filter(u => (todayChecks[u.placa]||{}).estado === 'FUERA').length;
+  const pend = allUnits.filter(u => !todayChecks[u.placa]).length;
+
+  const tractos = allUnits.filter(u => u.tipo === 'TRACTO').length;
+  const m2 = allUnits.filter(u => u.tipo === 'M2-MACK').length;
+
+  const ubicaciones = {};
+  allUnits.forEach(u => { ubicaciones[u.ubicacion || 'Sin ubicación'] = (ubicaciones[u.ubicacion || 'Sin ubicación'] || 0) + 1; });
+  const topUbic = Object.entries(ubicaciones).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  const fallasPorMes = {};
+  allFallas.forEach(f => {
+    const mes = (f.fecha||'').substring(0,7);
+    if (mes) fallasPorMes[mes] = (fallasPorMes[mes]||0) + 1;
+  });
+  const meses = Object.entries(fallasPorMes).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6);
+
+  container.innerHTML = `
+    <div class="dash-card">
+      <div class="dash-card-title">Estado de Flota Hoy</div>
+      <div class="progress-list">
+        ${[['Operativas', op, '#00e676'], ['Observadas', obs, '#ff9800'], ['Fuera de Servicio', fuera, '#f44336'], ['Sin Reportar', pend, '#4a5f80']].map(([label, val, color]) => `
+          <div class="progress-item">
+            <label><span>${label}</span><span style="color:${color};font-weight:700">${val}</span></label>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${total?Math.round(val/total*100):0}%;background:${color}"></div></div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">Composición de Flota</div>
+      <div style="display:flex;gap:20px;align-items:center;justify-content:center;padding:10px 0">
+        <div style="text-align:center">
+          ${truckSVG('TRACTO','#00c3ff')}
+          <div style="font-family:var(--font);font-size:36px;font-weight:900;color:var(--accent)">${tractos}</div>
+          <div style="font-size:12px;color:var(--text2)">TRACTOS</div>
+        </div>
+        <div style="text-align:center">
+          ${truckSVG('M2-MACK','#00e676')}
+          <div style="font-family:var(--font);font-size:36px;font-weight:900;color:var(--green)">${m2}</div>
+          <div style="font-size:12px;color:var(--text2)">M2 / MACK</div>
+        </div>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">Top Ubicaciones</div>
+      <div class="progress-list">
+        ${topUbic.map(([ubic, count]) => `
+          <div class="progress-item">
+            <label><span style="font-size:12px">${ubic}</span><span style="color:var(--accent);font-weight:700">${count}</span></label>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${Math.round(count/total*100)}%;background:var(--accent)"></div></div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">Fallas por Mes</div>
+      ${meses.length === 0 ? '<div style="color:var(--text3);text-align:center;padding:30px">Sin datos aún</div>' :
+        `<div style="display:flex;gap:6px;align-items:flex-end;height:120px;padding-top:10px">
+          ${meses.map(([mes, cnt]) => {
+            const maxV = Math.max(...meses.map(m=>m[1]));
+            const pct = maxV ? Math.round(cnt/maxV*100) : 0;
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <span style="font-size:11px;color:var(--accent);font-weight:700">${cnt}</span>
+              <div style="width:100%;background:var(--accent);border-radius:3px 3px 0 0;height:${pct}%;min-height:4px;opacity:.7"></div>
+              <span style="font-size:10px;color:var(--text3)">${mes.substring(5)}</span>
+            </div>`;
+          }).join('')}
+        </div>`}
+    </div>
+  `;
+}
+
+// ─── EXPORT ───
+function exportReport() {
+  const today = new Date().toLocaleDateString('es-PE');
+  let csv = `REPORTE DIARIO MISAGI - ${today}\nPlaca,Tipo,Ubicación,Estado,Gravedad,Descripcion,Tecnico,Costo\n`;
+  allUnits.forEach(u => {
+    const c = todayChecks[u.placa];
+    csv += `${u.placa},${u.tipo},${u.ubicacion||''},${c?.estado||'SIN REPORTE'},${c?.gravedad||''},${c?.descripcion||''},${c?.tecnico||''},${c?.costo||0}\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `MISAGI_Flota_${todayStr}.csv`; a.click();
+  showToast('Reporte exportado ✓', 'success');
+}
+
+// ─── EXPOSE AS window.APP ───
+window.APP = {
+  filterFleet, filterReports, filterHUnits,
+  openChecklist, openAddUnit, openFallaModal,
+  selectEstado, selectGrav, selectTipo,
+  saveAllOk, saveChecklist, saveNewUnit,
+  closeFalla, editFalla, exportReport,
+  loadUnitHistory,
+  closeModal(id) { document.getElementById(id).classList.remove('open'); },
+  showToast,
+};
+
+// Nav event delegation
+document.querySelector('nav').addEventListener('click', e => {
+  const btn = e.target.closest('[data-page]');
+  if (!btn) return;
+  const page = btn.dataset.page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  btn.classList.add('active');
+  if (page === 'dashboard') updateDashboard();
+});
+
+// Modal overlay click to close
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+init();
+</script>
+</body>
+</html>
