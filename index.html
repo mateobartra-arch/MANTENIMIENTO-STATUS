@@ -845,8 +845,18 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     MODAL: EDITAR UNIDAD (tipo, semirremolque, conductor)
+     MODAL: ÉXITO AL GUARDAR REPORTE
 ═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div style="font-size:56px;margin-bottom:12px">✅</div>
+    <div class="modal-title" style="justify-content:center;display:block" id="successTitle">¡Reporte Guardado!</div>
+    <div class="modal-sub" style="text-align:center;margin-bottom:24px" id="successMsg">El reporte fue registrado correctamente.</div>
+    <button class="btn btn-accent" style="width:100%;font-size:16px" onclick="APP.closeModal('successModal')">Cerrar</button>
+  </div>
+</div>
+
+
 <div class="modal-overlay" id="editUnitModal">
   <div class="modal" style="max-width:480px">
     <button class="modal-close" onclick="APP.closeModal('editUnitModal')">×</button>
@@ -934,7 +944,7 @@
 <!-- ═══ FIREBASE + APP LOGIC ═══ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, addDoc, getDocs, onSnapshot, query, orderBy, where, updateDoc, serverTimestamp }
+import { getFirestore, collection, doc, setDoc, addDoc, getDocs, onSnapshot, query, orderBy, where, updateDoc, deleteDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1284,7 +1294,9 @@ async function saveAllOk() {
   if (!currentUnit) return;
   await saveCheckDoc(currentUnit.placa, { estado: 'OPERATIVO', gravedad: '', descripcion: 'Sin fallas. Todo OK.', observaciones: document.getElementById('mObs').value });
   closeModal('checklistModal');
-  showToast(`✅ ${currentUnit.placa} — Todo OK registrado`, 'success');
+  document.getElementById('successTitle').textContent = '¡Reporte Guardado!';
+  document.getElementById('successMsg').textContent = `${currentUnit.placa} — Sin fallas. Todo OK ✅`;
+  document.getElementById('successModal').classList.add('open');
 }
 
 async function saveChecklist() {
@@ -1322,7 +1334,14 @@ async function saveChecklist() {
     });
   }
   closeModal('checklistModal');
-  showToast(`💾 ${currentUnit.placa} — Reporte guardado`, 'success');
+  // Mostrar modal de éxito
+  const estadoLabel = data.estado === 'OPERATIVO' ? 'Operativo ✅' : data.estado === 'OBSERVADO' ? 'Observado ⚠️' : 'Fuera de Servicio 🔴';
+  document.getElementById('successTitle').textContent = '¡Reporte Guardado!';
+  document.getElementById('successMsg').innerHTML = `
+    <strong>${currentUnit.placa}</strong> — ${estadoLabel}<br>
+    ${data.descripcion ? `<span style="font-size:12px;color:var(--text2)">${data.descripcion}</span>` : ''}
+  `;
+  document.getElementById('successModal').classList.add('open');
 }
 
 async function saveCheckDoc(placa, data) {
@@ -1456,6 +1475,7 @@ function renderReports() {
       <td>
         <button class="btn btn-outline btn-sm" onclick="APP.editFalla('${f.id}')">Editar</button>
         <button class="btn btn-sm" style="background:rgba(46,158,91,.12);color:var(--green);border:1px solid rgba(46,158,91,.3)" onclick="APP.closeFalla('${f.id}')">✓ Cerrar</button>
+        <button class="btn btn-sm" style="background:rgba(214,59,59,.12);color:var(--red);border:1px solid rgba(214,59,59,.3)" onclick="APP.deleteFalla('${f.id}','${(f.descripcion||'').substring(0,30).replace(/'/g,'')}')">🗑 Eliminar</button>
       </td>
     </tr>`;
   }).join('');
@@ -1464,6 +1484,14 @@ function renderReports() {
 async function closeFalla(id) {
   await updateDoc(doc(db, 'fallas', id), { estadoFalla: 'CERRADO' });
   showToast('Falla marcada como cerrada ✓', 'success');
+}
+
+async function deleteFalla(id, desc) {
+  // Confirmación nativa del navegador
+  const ok = confirm(`¿Eliminar este registro de falla?\n\n"${desc}..."\n\nEsta acción no se puede deshacer.`);
+  if (!ok) return;
+  await deleteDoc(doc(db, 'fallas', id));
+  showToast('🗑 Falla eliminada', 'success');
 }
 function editFalla(id) {
   const f = allFallas.find(x => x.id === id);
@@ -1959,7 +1987,7 @@ window.APP = {
   openChecklist, openAddUnit, openFallaModal,
   selectEstado, selectGrav, selectTipo,
   saveAllOk, saveChecklist, saveNewUnit,
-  closeFalla, editFalla, exportReport,
+  closeFalla, editFalla, deleteFalla, exportReport,
   loadUnitHistory,
   openEditUbic, saveUbicacion,
   openEditUnit, saveEditUnit,
