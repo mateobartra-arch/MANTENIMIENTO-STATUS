@@ -1475,7 +1475,7 @@ function renderReports() {
       <td>
         <button class="btn btn-outline btn-sm" onclick="APP.editFalla('${f.id}')">Editar</button>
         <button class="btn btn-sm" style="background:rgba(46,158,91,.12);color:var(--green);border:1px solid rgba(46,158,91,.3)" onclick="APP.closeFalla('${f.id}')">✓ Cerrar</button>
-        <button class="btn btn-sm" style="background:rgba(214,59,59,.12);color:var(--red);border:1px solid rgba(214,59,59,.3)" onclick="APP.deleteFalla('${f.id}','${(f.descripcion||'').substring(0,30).replace(/'/g,'')}')">🗑 Eliminar</button>
+        <button class="btn btn-sm" style="background:rgba(214,59,59,.12);color:var(--red);border:1px solid rgba(214,59,59,.3)" data-delete-id="${f.id}" onclick="APP.deleteFalla(this.dataset.deleteId)">🗑 Eliminar</button>
       </td>
     </tr>`;
   }).join('');
@@ -1486,9 +1486,10 @@ async function closeFalla(id) {
   showToast('Falla marcada como cerrada ✓', 'success');
 }
 
-async function deleteFalla(id, desc) {
-  // Confirmación nativa del navegador
-  const ok = confirm(`¿Eliminar este registro de falla?\n\n"${desc}..."\n\nEsta acción no se puede deshacer.`);
+async function deleteFalla(id) {
+  const f = allFallas.find(x => x.id === id);
+  const desc = f?.descripcion ? f.descripcion.substring(0, 50) : 'esta falla';
+  const ok = confirm(`¿Eliminar este registro?\n\n"${desc}"\n\nEsta acción no se puede deshacer.`);
   if (!ok) return;
   await deleteDoc(doc(db, 'fallas', id));
   showToast('🗑 Falla eliminada', 'success');
