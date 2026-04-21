@@ -244,6 +244,8 @@
   .est-abierto { background:rgba(214,59,59,.12); color:var(--red); border:1px solid rgba(214,59,59,.3); }
   .est-pendiente { background:rgba(224,123,26,.12); color:var(--orange); border:1px solid rgba(224,123,26,.3); }
   .est-cerrado { background:rgba(46,158,91,.12); color:var(--green); border:1px solid rgba(46,158,91,.3); }
+  .pago-pend { background:rgba(224,123,26,.12); color:var(--orange); border:1px solid rgba(224,123,26,.3); font-family:var(--font); font-size:11px; font-weight:700; letter-spacing:1px; padding:4px 10px; border-radius:4px; text-transform:uppercase; }
+  .pago-pag  { background:rgba(46,158,91,.12);  color:var(--green);  border:1px solid rgba(46,158,91,.3);  font-family:var(--font); font-size:11px; font-weight:700; letter-spacing:1px; padding:4px 10px; border-radius:4px; text-transform:uppercase; }
 
   /* ─── PAGE 3: HISTORIAL UNIDAD ─── */
   .unit-selector-bar { display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; align-items:center; }
@@ -506,6 +508,9 @@
   </button>
   <button class="nav-btn" data-page="reportes">📊 Reportes</button>
   <button class="nav-btn" data-page="historial">🔍 Historial por Unidad</button>
+  <button class="nav-btn" data-page="pagos">💰 Pagos
+    <span class="nav-badge" id="pagosBadge" style="display:none;background:#e07b1a">0</span>
+  </button>
   <button class="nav-btn" data-page="dashboard">📈 Dashboard</button>
 </nav>
 
@@ -618,13 +623,14 @@
           <th>Descripción</th>
           <th>Gravedad</th>
           <th>Estado</th>
+          <th>Pago</th>
           <th>Técnico</th>
           <th>Costo</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody id="reportTable">
-        <tr><td colspan="10" class="loading"><div class="spinner"></div>Cargando...</td></tr>
+        <tr><td colspan="11" class="loading"><div class="spinner"></div>Cargando...</td></tr>
       </tbody>
     </table>
   </div>
@@ -655,7 +661,75 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     PAGE 4: DASHBOARD
+     PAGE 4: PAGOS
+═══════════════════════════════════════════════════ -->
+<div id="page-pagos" class="page">
+
+  <!-- KPIs de pago -->
+  <div class="kpi-bar" style="margin-bottom:20px">
+    <div class="kpi-card" style="--kpi-color:var(--orange)">
+      <div class="kpi-label">Pendientes de Pago</div>
+      <div class="kpi-value" id="p-pend">—</div>
+      <div class="kpi-sub">Trabajos sin cobrar</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--green)">
+      <div class="kpi-label">Pagados</div>
+      <div class="kpi-value" id="p-pag">—</div>
+      <div class="kpi-sub">Trabajos cobrados</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--red)">
+      <div class="kpi-label">Monto Pendiente (S/.)</div>
+      <div class="kpi-value" id="p-monto-pend">—</div>
+      <div class="kpi-sub">Por cobrar</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--accent)">
+      <div class="kpi-label">Monto Pagado (S/.)</div>
+      <div class="kpi-value" id="p-monto-pag">—</div>
+      <div class="kpi-sub">Total cobrado</div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <input class="search-box" style="max-width:220px" placeholder="🔍 Buscar placa o técnico..." id="pSearch" oninput="APP.filterPagos()">
+    <select class="filter-select" id="pFilterEst" onchange="APP.filterPagos()">
+      <option value="">Todos los pagos</option>
+      <option value="PENDIENTE">⏳ Pendiente de Pago</option>
+      <option value="PAGADO">✅ Pagado</option>
+    </select>
+    <select class="filter-select" id="pFilterFalla" onchange="APP.filterPagos()">
+      <option value="">Todos los estados falla</option>
+      <option value="ABIERTO">Abierto</option>
+      <option value="PENDIENTE">Pendiente</option>
+      <option value="CERRADO">Cerrado</option>
+    </select>
+    <input type="date" class="filter-select" id="pFilterFecha" onchange="APP.filterPagos()">
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Fecha</th>
+          <th>Placa</th>
+          <th>Descripción</th>
+          <th>Técnico</th>
+          <th>Estado Falla</th>
+          <th>Costo (S/.)</th>
+          <th>Estado Pago</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="pagosTable">
+        <tr><td colspan="9" class="loading"><div class="spinner"></div>Cargando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 5: DASHBOARD
 ═══════════════════════════════════════════════════ -->
 <div id="page-dashboard" class="page">
   <div class="dash-grid" id="dashGrid">
@@ -716,6 +790,19 @@
             <option value="PENDIENTE">Pendiente</option>
             <option value="CERRADO">Cerrado</option>
           </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Estado de Pago</div>
+        <div style="display:flex;gap:10px">
+          <button class="pago-btn" id="pbtn-pend" onclick="APP.selectPago('PENDIENTE')"
+            style="flex:1;padding:10px;border:2px solid #e07b1a;border-radius:8px;background:rgba(224,123,26,.1);color:#e07b1a;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px">
+            ⏳ PENDIENTE
+          </button>
+          <button class="pago-btn" id="pbtn-pag" onclick="APP.selectPago('PAGADO')"
+            style="flex:1;padding:10px;border:2px solid var(--border2);border-radius:8px;background:none;color:var(--text2);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px">
+            ✅ PAGADO
+          </button>
         </div>
       </div>
     </div>
@@ -976,6 +1063,7 @@ let todayChecks = {};    // placa -> check doc for today
 let currentUnit = null;  // for modal
 let selectedEstado = ''; 
 let selectedGrav = '';
+let selectedPago = 'PENDIENTE';
 let selectedTipoNuevo = '';
 const todayStr = new Date().toISOString().split('T')[0];
 
@@ -1040,6 +1128,7 @@ function listenFallas() {
   onSnapshot(q, snap => {
     allFallas = snap.docs.map(d => ({id:d.id, ...d.data()}));
     renderReports();
+    renderPagos();
     updateKPIs();
     updateDashboard();
   });
@@ -1254,6 +1343,7 @@ function openChecklist(placa) {
     `${currentUnit.tipo} · ${currentUnit.ubicacion || '—'} · Conductor: ${currentUnit.conductor || '—'}`;
   selectedEstado = check ? check.estado : '';
   selectedGrav = check ? check.gravedad : '';
+  selectedPago = check?.estadoPago || 'PENDIENTE';
   document.getElementById('mDesc').value = check?.descripcion || '';
   document.getElementById('mAccion').value = check?.accionCorrectiva || '';
   document.getElementById('mTecnico').value = check?.tecnico || '';
@@ -1263,6 +1353,7 @@ function openChecklist(placa) {
   document.getElementById('mEstado').value = check?.estadoFalla || 'ABIERTO';
   updateEstadoBtns();
   updateGravBtns();
+  updatePagoBtns();
   toggleFallaFields();
   document.getElementById('checklistModal').classList.add('open');
 }
@@ -1288,6 +1379,21 @@ function updateGravBtns() {
   if (selectedGrav === 'LEVE') document.querySelector('.grav-leve').classList.add('sel');
   if (selectedGrav === 'GRAVE') document.querySelector('.grav-grave').classList.add('sel');
   if (selectedGrav === 'MUY GRAVE') document.querySelector('.grav-muy').classList.add('sel');
+}
+function selectPago(p) {
+  selectedPago = p; updatePagoBtns();
+}
+function updatePagoBtns() {
+  const pend = document.getElementById('pbtn-pend');
+  const pag  = document.getElementById('pbtn-pag');
+  if (!pend || !pag) return;
+  if (selectedPago === 'PENDIENTE') {
+    pend.style.cssText = 'flex:1;padding:10px;border:2px solid #e07b1a;border-radius:8px;background:rgba(224,123,26,.15);color:#e07b1a;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px';
+    pag.style.cssText  = 'flex:1;padding:10px;border:2px solid var(--border2);border-radius:8px;background:none;color:var(--text2);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px';
+  } else {
+    pag.style.cssText  = 'flex:1;padding:10px;border:2px solid #2e9e5b;border-radius:8px;background:rgba(46,158,91,.15);color:#2e9e5b;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px';
+    pend.style.cssText = 'flex:1;padding:10px;border:2px solid var(--border2);border-radius:8px;background:none;color:var(--text2);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px';
+  }
 }
 
 async function saveAllOk() {
@@ -1315,6 +1421,7 @@ async function saveChecklist() {
     km: parseInt(document.getElementById('mKm').value) || 0,
     observaciones: document.getElementById('mObs').value,
     estadoFalla: document.getElementById('mEstado').value,
+    estadoPago: selectedPago,
   };
   await saveCheckDoc(currentUnit.placa, data);
   // also add to fallas if has issue
@@ -1330,6 +1437,7 @@ async function saveChecklist() {
       tecnico: data.tecnico,
       costo: data.costo,
       estadoFalla: data.estadoFalla,
+      estadoPago: data.estadoPago,
       fechaCreacion: serverTimestamp(),
     });
   }
@@ -1456,12 +1564,14 @@ function renderReports() {
   });
 
   if (!fallas.length) {
-    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text3)">No hay registros</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--text3)">No hay registros</td></tr>`;
     return;
   }
   tbody.innerHTML = fallas.map((f, i) => {
     const gClass = f.gravedad === 'MUY GRAVE' ? 'nivel-muy' : f.gravedad === 'GRAVE' ? 'nivel-grave' : 'nivel-leve';
     const eClass = f.estadoFalla === 'ABIERTO' ? 'est-abierto' : f.estadoFalla === 'PENDIENTE' ? 'est-pendiente' : 'est-cerrado';
+    const pagoClass = f.estadoPago === 'PAGADO' ? 'pago-pag' : 'pago-pend';
+    const pagoLabel = f.estadoPago === 'PAGADO' ? '✅ Pagado' : '⏳ Pendiente';
     return `<tr>
       <td style="color:var(--text2)">${i+1}</td>
       <td>${f.fecha || '—'}</td>
@@ -1470,9 +1580,10 @@ function renderReports() {
       <td style="max-width:200px;white-space:normal;font-size:12px">${f.descripcion || '—'}</td>
       <td><span class="nivel-badge ${gClass}">${f.gravedad || '—'}</span></td>
       <td><span class="estado-badge ${eClass}">${f.estadoFalla || '—'}</span></td>
+      <td><span class="${pagoClass}">${pagoLabel}</span></td>
       <td style="color:var(--text2)">${f.tecnico || '—'}</td>
       <td>S/.${(parseFloat(f.costo)||0).toFixed(2)}</td>
-      <td>
+      <td style="white-space:nowrap">
         <button class="btn btn-outline btn-sm" onclick="APP.editFalla('${f.id}')">Editar</button>
         <button class="btn btn-sm" style="background:rgba(46,158,91,.12);color:var(--green);border:1px solid rgba(46,158,91,.3)" onclick="APP.closeFalla('${f.id}')">✓ Cerrar</button>
         <button class="btn btn-sm" style="background:rgba(214,59,59,.12);color:var(--red);border:1px solid rgba(214,59,59,.3)" data-delete-id="${f.id}" onclick="APP.deleteFalla(this.dataset.deleteId)">🗑 Eliminar</button>
@@ -1982,11 +2093,83 @@ function imgToBase64(src) {
   });
 }
 
+// ─── PÁGINA PAGOS ───
+function filterPagos() { renderPagos(); }
+
+function renderPagos() {
+  const tbody = document.getElementById('pagosTable');
+  if (!tbody) return;
+  const search  = (document.getElementById('pSearch')?.value || '').toLowerCase();
+  const fEst    = document.getElementById('pFilterEst')?.value || '';
+  const fFalla  = document.getElementById('pFilterFalla')?.value || '';
+  const fFecha  = document.getElementById('pFilterFecha')?.value || '';
+
+  // Solo fallas que tienen costo > 0 o cualquiera (mostrar todas)
+  let fallas = allFallas.filter(f => {
+    const ms = !search  || (f.placa||'').toLowerCase().includes(search) || (f.tecnico||'').toLowerCase().includes(search) || (f.descripcion||'').toLowerCase().includes(search);
+    const mp = !fEst    || (f.estadoPago || 'PENDIENTE') === fEst;
+    const mf = !fFalla  || f.estadoFalla === fFalla;
+    const md = !fFecha  || f.fecha === fFecha;
+    return ms && mp && mf && md;
+  });
+
+  // KPIs pagos
+  const pend     = allFallas.filter(f => (f.estadoPago || 'PENDIENTE') === 'PENDIENTE').length;
+  const pag      = allFallas.filter(f => f.estadoPago === 'PAGADO').length;
+  const montoPend= allFallas.filter(f => (f.estadoPago||'PENDIENTE')==='PENDIENTE').reduce((a,f)=>a+(parseFloat(f.costo)||0),0);
+  const montoPag = allFallas.filter(f => f.estadoPago==='PAGADO').reduce((a,f)=>a+(parseFloat(f.costo)||0),0);
+  const badge    = document.getElementById('pagosBadge');
+
+  document.getElementById('p-pend').textContent       = pend;
+  document.getElementById('p-pag').textContent        = pag;
+  document.getElementById('p-monto-pend').textContent = montoPend.toFixed(0);
+  document.getElementById('p-monto-pag').textContent  = montoPag.toFixed(0);
+  if (badge) { badge.textContent = pend; badge.style.display = pend > 0 ? '' : 'none'; }
+
+  if (!fallas.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text3)">No hay registros</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = fallas.map((f, i) => {
+    const eClass    = f.estadoFalla === 'ABIERTO' ? 'est-abierto' : f.estadoFalla === 'PENDIENTE' ? 'est-pendiente' : 'est-cerrado';
+    const isPagado  = f.estadoPago === 'PAGADO';
+    const pagoClass = isPagado ? 'pago-pag' : 'pago-pend';
+    const pagoLabel = isPagado ? '✅ Pagado' : '⏳ Pendiente';
+    return `<tr style="${isPagado ? 'opacity:.7' : ''}">
+      <td style="color:var(--text2)">${i+1}</td>
+      <td>${f.fecha || '—'}</td>
+      <td><strong>${f.placa || '—'}</strong></td>
+      <td style="max-width:180px;white-space:normal;font-size:12px;color:var(--text2)">${f.descripcion || '—'}</td>
+      <td style="color:var(--text2)">${f.tecnico || '—'}</td>
+      <td><span class="estado-badge ${eClass}">${f.estadoFalla || '—'}</span></td>
+      <td style="font-weight:700;color:var(--accent)">S/.${(parseFloat(f.costo)||0).toFixed(2)}</td>
+      <td><span class="${pagoClass}">${pagoLabel}</span></td>
+      <td>
+        ${!isPagado
+          ? `<button class="btn btn-sm btn-green" data-pid="${f.id}" onclick="APP.marcarPagado(this.dataset.pid)">✓ Marcar Pagado</button>`
+          : `<button class="btn btn-sm btn-outline" data-pid="${f.id}" onclick="APP.marcarPendiente(this.dataset.pid)">↩ Revertir</button>`
+        }
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function marcarPagado(id) {
+  await updateDoc(doc(db, 'fallas', id), { estadoPago: 'PAGADO' });
+  showToast('✅ Marcado como pagado', 'success');
+}
+async function marcarPendiente(id) {
+  await updateDoc(doc(db, 'fallas', id), { estadoPago: 'PENDIENTE' });
+  showToast('↩ Revertido a pendiente', 'success');
+}
+
 // ─── EXPOSE AS window.APP ───
 window.APP = {
   filterFleet, filterReports, filterHUnits,
+  filterPagos, marcarPagado, marcarPendiente,
   openChecklist, openAddUnit, openFallaModal,
-  selectEstado, selectGrav, selectTipo,
+  selectEstado, selectGrav, selectTipo, selectPago,
   saveAllOk, saveChecklist, saveNewUnit,
   closeFalla, editFalla, deleteFalla, exportReport,
   loadUnitHistory,
@@ -2006,6 +2189,7 @@ document.querySelector('nav').addEventListener('click', e => {
   document.getElementById(`page-${page}`).classList.add('active');
   btn.classList.add('active');
   if (page === 'dashboard') updateDashboard();
+  if (page === 'pagos') renderPagos();
 });
 
 // Modal overlay click to close
