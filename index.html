@@ -817,7 +817,7 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="APP.closeModal('checklistModal')">Cancelar</button>
+      <button class="btn btn-outline" onclick="editingFallaId=null;APP.closeModal('checklistModal')">Cancelar</button>
       <button class="btn btn-green" onclick="APP.saveAllOk()">✓ Todo OK Rápido</button>
       <button class="btn btn-accent" onclick="APP.saveChecklist()">💾 Guardar Reporte</button>
     </div>
@@ -1065,6 +1065,7 @@ let selectedEstado = '';
 let selectedGrav = '';
 let selectedPago = 'PENDIENTE';
 let selectedTipoNuevo = '';
+let editingFallaId = null;  // null = crear nuevo, string = editar existente
 const todayStr = new Date().toISOString().split('T')[0];
 
 // ─── INIT ───
@@ -1620,8 +1621,6 @@ async function deleteFalla(id) {
   showToast('🗑 Falla eliminada', 'success');
 }
 // ─── EDITAR FALLA EXISTENTE (updateDoc, no crea duplicado) ───
-let editingFallaId = null;
-
 function editFalla(id) {
   const f = allFallas.find(x => x.id === id);
   if (!f) return;
