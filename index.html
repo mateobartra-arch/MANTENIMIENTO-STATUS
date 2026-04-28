@@ -1428,14 +1428,19 @@ async function saveChecklist() {
       estadoPago:       data.estadoPago,
       // NO se actualiza fecha ni fechaCreacion — se conserva la original
     });
+    const placaEdit = currentUnit.placa;
     editingFallaId = null;
     closeModal('checklistModal');
-    document.getElementById('successTitle').textContent = '¡Falla Actualizada!';
-    document.getElementById('successMsg').innerHTML = `
-      <strong>${currentUnit.placa}</strong> — registro editado correctamente.<br>
-      <span style="font-size:12px;color:var(--text2)">La fecha original se ha conservado.</span>
-    `;
-    document.getElementById('successModal').classList.add('open');
+    // Pequeño delay para que el modal anterior cierre antes de abrir el nuevo
+    setTimeout(() => {
+      document.getElementById('successTitle').textContent = '✏️ Actualizado con éxito';
+      document.getElementById('successMsg').innerHTML = `
+        <strong style="font-size:16px">${placaEdit}</strong><br>
+        <span style="color:var(--text2)">Los cambios fueron guardados correctamente.</span><br>
+        <span style="font-size:11px;color:var(--text3);margin-top:4px;display:block">Fecha original conservada sin cambios.</span>
+      `;
+      document.getElementById('successModal').classList.add('open');
+    }, 150);
     return;
   }
 
