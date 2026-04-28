@@ -742,7 +742,7 @@
 ═══════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="checklistModal">
   <div class="modal">
-    <button class="modal-close" onclick="APP.closeModal('checklistModal')">×</button>
+    <button class="modal-close" onclick="editingFallaId=null;APP.closeModal('checklistModal')">×</button>
     <div class="modal-title" id="mTitle">CFF841</div>
     <div class="modal-sub" id="mSub">Tracto · Espinar · Conductor: —</div>
 
@@ -1079,18 +1079,9 @@ async function init() {
 async function seedUnitsIfEmpty() {
   try {
     const snap = await getDocs(collection(db, 'unidades'));
-    const MISAGI_PLACAS = FLOTA_INICIAL.map(u => u.placa);
-
-    // Delete any unit NOT in MISAGI fleet
-    const toDelete = snap.docs.filter(d => !MISAGI_PLACAS.includes(d.id));
-    if (toDelete.length > 0) {
-      for (const d of toDelete) {
-        await updateDoc(doc(db, 'unidades', d.id), { activo: false });
-      }
-    }
-
-    // Seed the 7 MISAGI units
-    if (snap.empty || snap.docs.filter(d => MISAGI_PLACAS.includes(d.id)).length < MISAGI_PLACAS.length) {
+    // Solo sembrar si Firebase está completamente vacío
+    // NUNCA borrar unidades que el usuario haya agregado manualmente
+    if (snap.empty) {
       for (const u of FLOTA_INICIAL) {
         await setDoc(doc(db, 'unidades', u.placa), {
           ...u, activo: true, creadoEn: serverTimestamp()
@@ -1423,26 +1414,49 @@ async function saveChecklist() {
     estadoFalla: document.getElementById('mEstado').value,
     estadoPago: selectedPago,
   };
+
+  if (editingFallaId) {
+    // ── MODO EDICIÓN: actualizar el registro existente, sin crear uno nuevo ──
+    await updateDoc(doc(db, 'fallas', editingFallaId), {
+      descripcion:      data.descripcion,
+      gravedad:         data.gravedad || 'LEVE',
+      accionCorrectiva: data.accionCorrectiva,
+      tecnico:          data.tecnico,
+      costo:            data.costo,
+      estadoFalla:      data.estadoFalla,
+      estadoPago:       data.estadoPago,
+      // NO se actualiza fecha ni fechaCreacion — se conserva la original
+    });
+    editingFallaId = null;
+    closeModal('checklistModal');
+    document.getElementById('successTitle').textContent = '¡Falla Actualizada!';
+    document.getElementById('successMsg').innerHTML = `
+      <strong>${currentUnit.placa}</strong> — registro editado correctamente.<br>
+      <span style="font-size:12px;color:var(--text2)">La fecha original se ha conservado.</span>
+    `;
+    document.getElementById('successModal').classList.add('open');
+    return;
+  }
+
+  // ── MODO NORMAL: guardar checklist del día + crear falla si aplica ──
   await saveCheckDoc(currentUnit.placa, data);
-  // also add to fallas if has issue
   if ((selectedEstado === 'OBSERVADO' || selectedEstado === 'FUERA') && data.descripcion) {
     await addDoc(collection(db, 'fallas'), {
-      placa: currentUnit.placa,
-      tipo: currentUnit.tipo,
-      ubicacion: currentUnit.ubicacion || '',
-      fecha: todayStr,
-      descripcion: data.descripcion,
-      gravedad: data.gravedad || 'LEVE',
+      placa:            currentUnit.placa,
+      tipo:             currentUnit.tipo,
+      ubicacion:        currentUnit.ubicacion || '',
+      fecha:            todayStr,
+      descripcion:      data.descripcion,
+      gravedad:         data.gravedad || 'LEVE',
       accionCorrectiva: data.accionCorrectiva,
-      tecnico: data.tecnico,
-      costo: data.costo,
-      estadoFalla: data.estadoFalla,
-      estadoPago: data.estadoPago,
-      fechaCreacion: serverTimestamp(),
+      tecnico:          data.tecnico,
+      costo:            data.costo,
+      estadoFalla:      data.estadoFalla,
+      estadoPago:       data.estadoPago,
+      fechaCreacion:    serverTimestamp(),
     });
   }
   closeModal('checklistModal');
-  // Mostrar modal de éxito
   const estadoLabel = data.estado === 'OPERATIVO' ? 'Operativo ✅' : data.estado === 'OBSERVADO' ? 'Observado ⚠️' : 'Fuera de Servicio 🔴';
   document.getElementById('successTitle').textContent = '¡Reporte Guardado!';
   document.getElementById('successMsg').innerHTML = `
@@ -1605,26 +1619,33 @@ async function deleteFalla(id) {
   await deleteDoc(doc(db, 'fallas', id));
   showToast('🗑 Falla eliminada', 'success');
 }
+// ─── EDITAR FALLA EXISTENTE (updateDoc, no crea duplicado) ───
+let editingFallaId = null;
+
 function editFalla(id) {
   const f = allFallas.find(x => x.id === id);
   if (!f) return;
-  // prefill modal
+  editingFallaId = id; // marcar que estamos editando, no creando
   currentUnit = allUnits.find(u => u.placa === f.placa) || { placa: f.placa, tipo: f.tipo, ubicacion: f.ubicacion, conductor: '' };
   document.getElementById('mTitle').textContent = f.placa;
-  document.getElementById('mSub').textContent = `Editando reporte de falla`;
+  document.getElementById('mSub').textContent = `✏️ Editando falla — ${f.fecha || ''}`;
   selectedEstado = 'OBSERVADO';
-  selectedGrav = f.gravedad;
-  document.getElementById('mDesc').value = f.descripcion || '';
-  document.getElementById('mAccion').value = f.accionCorrectiva || '';
+  selectedGrav = f.gravedad || '';
+  selectedPago = f.estadoPago || 'PENDIENTE';
+  document.getElementById('mDesc').value    = f.descripcion || '';
+  document.getElementById('mAccion').value  = f.accionCorrectiva || '';
   document.getElementById('mTecnico').value = f.tecnico || '';
-  document.getElementById('mCosto').value = f.costo || '';
-  document.getElementById('mEstado').value = f.estadoFalla || 'ABIERTO';
-  document.getElementById('mKm').value = '';
-  document.getElementById('mObs').value = '';
-  updateEstadoBtns(); updateGravBtns(); toggleFallaFields();
+  document.getElementById('mCosto').value   = f.costo || '';
+  document.getElementById('mEstado').value  = f.estadoFalla || 'ABIERTO';
+  document.getElementById('mKm').value      = '';
+  document.getElementById('mObs').value     = '';
+  updateEstadoBtns(); updateGravBtns(); updatePagoBtns(); toggleFallaFields();
   document.getElementById('checklistModal').classList.add('open');
 }
-function openFallaModal() { document.getElementById('checklistModal').classList.add('open'); }
+function openFallaModal() {
+  editingFallaId = null; // modo creación
+  document.getElementById('checklistModal').classList.add('open');
+}
 
 // ─── HISTORIAL POR UNIDAD ───
 function updateHistorialSelect() {
@@ -2194,7 +2215,12 @@ document.querySelector('nav').addEventListener('click', e => {
 
 // Modal overlay click to close
 document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+  m.addEventListener('click', e => {
+    if (e.target === m) {
+      m.classList.remove('open');
+      if (m.id === 'checklistModal') editingFallaId = null;
+    }
+  });
 });
 
 function showToast(msg, type='') {
