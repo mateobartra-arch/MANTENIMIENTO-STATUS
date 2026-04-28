@@ -818,8 +818,8 @@
 
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="editingFallaId=null;APP.closeModal('checklistModal')">Cancelar</button>
-      <button class="btn btn-green" onclick="APP.saveAllOk()">✓ Todo OK Rápido</button>
-      <button class="btn btn-accent" onclick="APP.saveChecklist()">💾 Guardar Reporte</button>
+      <button class="btn btn-green" id="btnSaveOk" onclick="APP.saveAllOk()">✓ Todo OK Rápido</button>
+      <button class="btn btn-accent" id="btnSave" onclick="APP.saveChecklist()">💾 Guardar Reporte</button>
     </div>
   </div>
 </div>
@@ -1388,13 +1388,32 @@ function updatePagoBtns() {
   }
 }
 
+// ─── BLOQUEAR BOTÓN GUARDAR (evita doble click) ───
+function lockSaveBtn() {
+  const btn = document.getElementById('btnSave');
+  const btnOk = document.getElementById('btnSaveOk');
+  if (btn) { btn.disabled = true; btn.style.opacity = '.5'; btn.textContent = '⏳ Guardando...'; }
+  if (btnOk) { btnOk.disabled = true; btnOk.style.opacity = '.5'; }
+}
+function unlockSaveBtn() {
+  const btn = document.getElementById('btnSave');
+  const btnOk = document.getElementById('btnSaveOk');
+  if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.textContent = '💾 Guardar Reporte'; }
+  if (btnOk) { btnOk.disabled = false; btnOk.style.opacity = ''; }
+}
+
 async function saveAllOk() {
   if (!currentUnit) return;
-  await saveCheckDoc(currentUnit.placa, { estado: 'OPERATIVO', gravedad: '', descripcion: 'Sin fallas. Todo OK.', observaciones: document.getElementById('mObs').value });
-  closeModal('checklistModal');
-  document.getElementById('successTitle').textContent = '¡Reporte Guardado!';
-  document.getElementById('successMsg').textContent = `${currentUnit.placa} — Sin fallas. Todo OK ✅`;
-  document.getElementById('successModal').classList.add('open');
+  lockSaveBtn();
+  try {
+    await saveCheckDoc(currentUnit.placa, { estado: 'OPERATIVO', gravedad: '', descripcion: 'Sin fallas. Todo OK.', observaciones: document.getElementById('mObs').value });
+    closeModal('checklistModal');
+    document.getElementById('successTitle').textContent = '¡Reporte Guardado!';
+    document.getElementById('successMsg').textContent = `${currentUnit.placa} — Sin fallas. Todo OK ✅`;
+    document.getElementById('successModal').classList.add('open');
+  } finally {
+    unlockSaveBtn();
+  }
 }
 
 async function saveChecklist() {
@@ -1403,73 +1422,79 @@ async function saveChecklist() {
   if ((selectedEstado === 'OBSERVADO' || selectedEstado === 'FUERA') && !document.getElementById('mDesc').value.trim()) {
     showToast('Describe la falla detectada', 'error'); return;
   }
-  const data = {
-    estado: selectedEstado,
-    gravedad: selectedGrav,
-    descripcion: document.getElementById('mDesc').value,
-    accionCorrectiva: document.getElementById('mAccion').value,
-    tecnico: document.getElementById('mTecnico').value,
-    costo: parseFloat(document.getElementById('mCosto').value) || 0,
-    km: parseInt(document.getElementById('mKm').value) || 0,
-    observaciones: document.getElementById('mObs').value,
-    estadoFalla: document.getElementById('mEstado').value,
-    estadoPago: selectedPago,
-  };
 
-  if (editingFallaId) {
-    // ── MODO EDICIÓN: actualizar el registro existente, sin crear uno nuevo ──
-    await updateDoc(doc(db, 'fallas', editingFallaId), {
-      descripcion:      data.descripcion,
-      gravedad:         data.gravedad || 'LEVE',
-      accionCorrectiva: data.accionCorrectiva,
-      tecnico:          data.tecnico,
-      costo:            data.costo,
-      estadoFalla:      data.estadoFalla,
-      estadoPago:       data.estadoPago,
-      // NO se actualiza fecha ni fechaCreacion — se conserva la original
-    });
-    const placaEdit = currentUnit.placa;
-    editingFallaId = null;
+  lockSaveBtn(); // ← bloquea inmediatamente en el primer click
+
+  try {
+    const data = {
+      estado: selectedEstado,
+      gravedad: selectedGrav,
+      descripcion: document.getElementById('mDesc').value,
+      accionCorrectiva: document.getElementById('mAccion').value,
+      tecnico: document.getElementById('mTecnico').value,
+      costo: parseFloat(document.getElementById('mCosto').value) || 0,
+      km: parseInt(document.getElementById('mKm').value) || 0,
+      observaciones: document.getElementById('mObs').value,
+      estadoFalla: document.getElementById('mEstado').value,
+      estadoPago: selectedPago,
+    };
+
+    if (editingFallaId) {
+      // ── MODO EDICIÓN: updateDoc sobre el doc existente, sin crear uno nuevo ──
+      await updateDoc(doc(db, 'fallas', editingFallaId), {
+        descripcion:      data.descripcion,
+        gravedad:         data.gravedad || 'LEVE',
+        accionCorrectiva: data.accionCorrectiva,
+        tecnico:          data.tecnico,
+        costo:            data.costo,
+        estadoFalla:      data.estadoFalla,
+        estadoPago:       data.estadoPago,
+      });
+      const placaEdit = currentUnit.placa;
+      editingFallaId = null;
+      closeModal('checklistModal');
+      setTimeout(() => {
+        document.getElementById('successTitle').textContent = '✏️ Actualizado con éxito';
+        document.getElementById('successMsg').innerHTML = `
+          <strong style="font-size:16px">${placaEdit}</strong><br>
+          <span style="color:var(--text2)">Los cambios fueron guardados correctamente.</span><br>
+          <span style="font-size:11px;color:var(--text3);margin-top:4px;display:block">Fecha original conservada sin cambios.</span>
+        `;
+        document.getElementById('successModal').classList.add('open');
+      }, 150);
+      return;
+    }
+
+    // ── MODO NORMAL: guardar checklist del día + crear falla si aplica ──
+    await saveCheckDoc(currentUnit.placa, data);
+    if ((selectedEstado === 'OBSERVADO' || selectedEstado === 'FUERA') && data.descripcion) {
+      await addDoc(collection(db, 'fallas'), {
+        placa:            currentUnit.placa,
+        tipo:             currentUnit.tipo,
+        ubicacion:        currentUnit.ubicacion || '',
+        fecha:            todayStr,
+        descripcion:      data.descripcion,
+        gravedad:         data.gravedad || 'LEVE',
+        accionCorrectiva: data.accionCorrectiva,
+        tecnico:          data.tecnico,
+        costo:            data.costo,
+        estadoFalla:      data.estadoFalla,
+        estadoPago:       data.estadoPago,
+        fechaCreacion:    serverTimestamp(),
+      });
+    }
     closeModal('checklistModal');
-    // Pequeño delay para que el modal anterior cierre antes de abrir el nuevo
-    setTimeout(() => {
-      document.getElementById('successTitle').textContent = '✏️ Actualizado con éxito';
-      document.getElementById('successMsg').innerHTML = `
-        <strong style="font-size:16px">${placaEdit}</strong><br>
-        <span style="color:var(--text2)">Los cambios fueron guardados correctamente.</span><br>
-        <span style="font-size:11px;color:var(--text3);margin-top:4px;display:block">Fecha original conservada sin cambios.</span>
-      `;
-      document.getElementById('successModal').classList.add('open');
-    }, 150);
-    return;
-  }
+    const estadoLabel = data.estado === 'OPERATIVO' ? 'Operativo ✅' : data.estado === 'OBSERVADO' ? 'Observado ⚠️' : 'Fuera de Servicio 🔴';
+    document.getElementById('successTitle').textContent = '¡Reporte Guardado!';
+    document.getElementById('successMsg').innerHTML = `
+      <strong>${currentUnit.placa}</strong> — ${estadoLabel}<br>
+      ${data.descripcion ? `<span style="font-size:12px;color:var(--text2)">${data.descripcion}</span>` : ''}
+    `;
+    document.getElementById('successModal').classList.add('open');
 
-  // ── MODO NORMAL: guardar checklist del día + crear falla si aplica ──
-  await saveCheckDoc(currentUnit.placa, data);
-  if ((selectedEstado === 'OBSERVADO' || selectedEstado === 'FUERA') && data.descripcion) {
-    await addDoc(collection(db, 'fallas'), {
-      placa:            currentUnit.placa,
-      tipo:             currentUnit.tipo,
-      ubicacion:        currentUnit.ubicacion || '',
-      fecha:            todayStr,
-      descripcion:      data.descripcion,
-      gravedad:         data.gravedad || 'LEVE',
-      accionCorrectiva: data.accionCorrectiva,
-      tecnico:          data.tecnico,
-      costo:            data.costo,
-      estadoFalla:      data.estadoFalla,
-      estadoPago:       data.estadoPago,
-      fechaCreacion:    serverTimestamp(),
-    });
+  } finally {
+    unlockSaveBtn(); // ← siempre se desbloquea al terminar
   }
-  closeModal('checklistModal');
-  const estadoLabel = data.estado === 'OPERATIVO' ? 'Operativo ✅' : data.estado === 'OBSERVADO' ? 'Observado ⚠️' : 'Fuera de Servicio 🔴';
-  document.getElementById('successTitle').textContent = '¡Reporte Guardado!';
-  document.getElementById('successMsg').innerHTML = `
-    <strong>${currentUnit.placa}</strong> — ${estadoLabel}<br>
-    ${data.descripcion ? `<span style="font-size:12px;color:var(--text2)">${data.descripcion}</span>` : ''}
-  `;
-  document.getElementById('successModal').classList.add('open');
 }
 
 async function saveCheckDoc(placa, data) {
