@@ -247,6 +247,35 @@
   .pago-pend { background:rgba(224,123,26,.12); color:var(--orange); border:1px solid rgba(224,123,26,.3); font-family:var(--font); font-size:11px; font-weight:700; letter-spacing:1px; padding:4px 10px; border-radius:4px; text-transform:uppercase; }
   .pago-pag  { background:rgba(46,158,91,.12);  color:var(--green);  border:1px solid rgba(46,158,91,.3);  font-family:var(--font); font-size:11px; font-weight:700; letter-spacing:1px; padding:4px 10px; border-radius:4px; text-transform:uppercase; }
 
+  /* ─── FOTOS ─── */
+  .foto-thumb {
+    position:relative; border-radius:8px; overflow:hidden;
+    aspect-ratio:1; background:var(--bg3); border:1px solid var(--border);
+    cursor:pointer;
+  }
+  .foto-thumb img { width:100%; height:100%; object-fit:cover; }
+  .foto-thumb .foto-del {
+    position:absolute; top:3px; right:3px; background:rgba(214,59,59,.85);
+    border:none; border-radius:50%; width:20px; height:20px; color:#fff;
+    font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    line-height:1;
+  }
+  .foto-thumb .foto-uploading {
+    position:absolute; inset:0; background:rgba(255,255,255,.7);
+    display:flex; align-items:center; justify-content:center; font-size:11px;
+  }
+  /* Visor foto grande */
+  #fotoViewer {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.9);
+    z-index:2000; align-items:center; justify-content:center; flex-direction:column;
+  }
+  #fotoViewer.open { display:flex; }
+  #fotoViewer img { max-width:95vw; max-height:88vh; border-radius:8px; object-fit:contain; }
+  #fotoViewer .viewer-close {
+    position:absolute; top:16px; right:20px; color:#fff; font-size:32px;
+    cursor:pointer; background:none; border:none; line-height:1;
+  }
+
   /* ─── PAGE 3: HISTORIAL UNIDAD ─── */
   .unit-selector-bar { display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; align-items:center; }
   .unit-info-card {
@@ -807,6 +836,46 @@
       </div>
     </div>
 
+    <!-- ── DETALLE DE REPUESTOS / GASTOS ADICIONALES ── -->
+    <div class="form-group" id="repuestosSection" style="display:none">
+      <div class="form-label" style="display:flex;align-items:center;justify-content:space-between">
+        <span>🔧 Repuestos / Gastos Adicionales</span>
+        <button onclick="APP.addRepuesto()" type="button"
+          style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:4px 12px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px">
+          + AGREGAR
+        </button>
+      </div>
+      <div id="repuestosList" style="display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
+        <span style="font-family:var(--font);font-size:13px;color:var(--text2)">Total repuestos:&nbsp;</span>
+        <span id="repuestosTotal" style="font-family:var(--font);font-size:13px;font-weight:700;color:var(--accent)">S/. 0.00</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;text-align:right">
+        Costo total = servicio + repuestos
+      </div>
+    </div>
+
+    <!-- ── FOTOS / EVIDENCIAS ── -->
+    <div class="form-group" id="fotosSection" style="display:none">
+      <div class="form-label">📷 Fotos / Evidencias</div>
+      <label id="fotoDropZone" style="
+        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+        border:2px dashed var(--border2);border-radius:10px;padding:20px;cursor:pointer;
+        background:var(--bg3);transition:all .2s;min-height:80px;
+      " onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)'">
+        <input type="file" id="fotoInput" accept="image/*" multiple capture="environment"
+          style="display:none" onchange="APP.handleFotos(this.files)">
+        <div style="font-size:28px">📷</div>
+        <div style="font-family:var(--font);font-size:13px;font-weight:700;color:var(--text2);letter-spacing:1px">TOMAR FOTO O SUBIR IMAGEN</div>
+        <div style="font-size:11px;color:var(--text3)">Celular: cámara o galería · PC: archivo JPG/PNG</div>
+      </label>
+      <!-- Preview de fotos seleccionadas (pendientes de subir) -->
+      <div id="fotosPreview" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:10px"></div>
+      <!-- Fotos ya guardadas en Firebase -->
+      <div id="fotosGuardadas" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:4px"></div>
+      <div id="fotosStatus" style="font-size:12px;color:var(--text2);margin-top:6px;text-align:center"></div>
+    </div>
+
     <div class="form-group">
       <div class="form-label">Kilometraje Actual</div>
       <input class="form-input" type="number" id="mKm" placeholder="Ingrese KM actual">
@@ -1025,6 +1094,13 @@
   </div>
 </div>
 
+<!-- ═══ VISOR DE FOTOS ═══ -->
+<div id="fotoViewer">
+  <button class="viewer-close" onclick="document.getElementById('fotoViewer').classList.remove('open')">×</button>
+  <img id="fotoViewerImg" src="" alt="Evidencia">
+  <div id="fotoViewerCaption" style="color:rgba(255,255,255,.7);font-size:12px;margin-top:8px"></div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -1033,6 +1109,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, setDoc, addDoc, getDocs, onSnapshot, query, orderBy, where, updateDoc, deleteDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAdlSkl1xLkIZ6aIQOYZ9xMeZkzIvynqw",
@@ -1043,7 +1121,8 @@ const firebaseConfig = {
   appId: "1:274025736984:web:837cf3417e6bec8634cc6d"
 };
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db  = getFirestore(app);
+const storage = getStorage(app);
 
 // ─── FLOTA MISAGI ───
 const FLOTA_INICIAL = [
@@ -1346,6 +1425,8 @@ function openChecklist(placa) {
   updateEstadoBtns();
   updateGravBtns();
   updatePagoBtns();
+  initRepuestos(check?.repuestos || []);
+  initFotos(check?.fotos || []);
   toggleFallaFields();
   document.getElementById('checklistModal').classList.add('open');
 }
@@ -1361,7 +1442,10 @@ function updateEstadoBtns() {
   document.getElementById('btn-fuera').className = 'estado-btn' + (selectedEstado === 'FUERA' ? ' sel-fuera' : '');
 }
 function toggleFallaFields() {
-  document.getElementById('fallaFields').style.display = (selectedEstado === 'OBSERVADO' || selectedEstado === 'FUERA') ? 'block' : 'none';
+  const show = selectedEstado === 'OBSERVADO' || selectedEstado === 'FUERA';
+  document.getElementById('fallaFields').style.display = show ? 'block' : 'none';
+  document.getElementById('repuestosSection').style.display = show ? 'block' : 'none';
+  document.getElementById('fotosSection').style.display = show ? 'block' : 'none';
 }
 function selectGrav(g) {
   selectedGrav = g; updateGravBtns();
@@ -1426,6 +1510,7 @@ async function saveChecklist() {
   lockSaveBtn(); // ← bloquea inmediatamente en el primer click
 
   try {
+    const costoRepuestos = repuestos.reduce((a, r) => a + (r.qty * r.precio), 0);
     const data = {
       estado: selectedEstado,
       gravedad: selectedGrav,
@@ -1433,6 +1518,9 @@ async function saveChecklist() {
       accionCorrectiva: document.getElementById('mAccion').value,
       tecnico: document.getElementById('mTecnico').value,
       costo: parseFloat(document.getElementById('mCosto').value) || 0,
+      costoRepuestos,
+      costoTotal: (parseFloat(document.getElementById('mCosto').value) || 0) + costoRepuestos,
+      repuestos: repuestos.filter(r => r.desc.trim()),
       km: parseInt(document.getElementById('mKm').value) || 0,
       observaciones: document.getElementById('mObs').value,
       estadoFalla: document.getElementById('mEstado').value,
@@ -1441,12 +1529,17 @@ async function saveChecklist() {
 
     if (editingFallaId) {
       // ── MODO EDICIÓN: updateDoc sobre el doc existente, sin crear uno nuevo ──
+      const fotosGuardadas = await subirFotos(editingFallaId);
       await updateDoc(doc(db, 'fallas', editingFallaId), {
         descripcion:      data.descripcion,
         gravedad:         data.gravedad || 'LEVE',
         accionCorrectiva: data.accionCorrectiva,
         tecnico:          data.tecnico,
         costo:            data.costo,
+        costoRepuestos:   data.costoRepuestos,
+        costoTotal:       data.costoTotal,
+        repuestos:        data.repuestos,
+        fotos:            fotosGuardadas,
         estadoFalla:      data.estadoFalla,
         estadoPago:       data.estadoPago,
       });
@@ -1468,7 +1561,7 @@ async function saveChecklist() {
     // ── MODO NORMAL: guardar checklist del día + crear falla si aplica ──
     await saveCheckDoc(currentUnit.placa, data);
     if ((selectedEstado === 'OBSERVADO' || selectedEstado === 'FUERA') && data.descripcion) {
-      await addDoc(collection(db, 'fallas'), {
+      const newRef = await addDoc(collection(db, 'fallas'), {
         placa:            currentUnit.placa,
         tipo:             currentUnit.tipo,
         ubicacion:        currentUnit.ubicacion || '',
@@ -1478,10 +1571,19 @@ async function saveChecklist() {
         accionCorrectiva: data.accionCorrectiva,
         tecnico:          data.tecnico,
         costo:            data.costo,
+        costoRepuestos:   data.costoRepuestos,
+        costoTotal:       data.costoTotal,
+        repuestos:        data.repuestos,
+        fotos:            [],
         estadoFalla:      data.estadoFalla,
         estadoPago:       data.estadoPago,
         fechaCreacion:    serverTimestamp(),
       });
+      // Subir fotos ahora que tenemos el ID
+      if (fotosNuevas.length) {
+        const fotosGuardadas = await subirFotos(newRef.id);
+        await updateDoc(doc(db, 'fallas', newRef.id), { fotos: fotosGuardadas });
+      }
     }
     closeModal('checklistModal');
     const estadoLabel = data.estado === 'OPERATIVO' ? 'Operativo ✅' : data.estado === 'OBSERVADO' ? 'Observado ⚠️' : 'Fuera de Servicio 🔴';
@@ -1622,12 +1724,25 @@ function renderReports() {
       <td>${f.fecha || '—'}</td>
       <td><strong>${f.placa || '—'}</strong></td>
       <td style="color:var(--text2)">${f.tipo || '—'}</td>
-      <td style="max-width:200px;white-space:normal;font-size:12px">${f.descripcion || '—'}</td>
+      <td style="max-width:200px;white-space:normal;font-size:12px">
+        ${f.descripcion || '—'}
+        ${f.fotos?.length ? `<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
+          ${f.fotos.slice(0,3).map(foto => `
+            <img src="${foto.url}" onclick="APP.verFoto('${foto.url}','${foto.nombre||''}')"
+              style="width:36px;height:36px;object-fit:cover;border-radius:5px;cursor:pointer;border:1px solid var(--border2)"
+              title="${foto.nombre||'foto'}">
+          `).join('')}
+          ${f.fotos.length > 3 ? `<div style="width:36px;height:36px;border-radius:5px;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text2);cursor:pointer" onclick="APP.editFalla('${f.id}')">+${f.fotos.length-3}</div>` : ''}
+        </div>` : ''}
+      </td>
       <td><span class="nivel-badge ${gClass}">${f.gravedad || '—'}</span></td>
       <td><span class="estado-badge ${eClass}">${f.estadoFalla || '—'}</span></td>
       <td><span class="${pagoClass}">${pagoLabel}</span></td>
       <td style="color:var(--text2)">${f.tecnico || '—'}</td>
-      <td>S/.${(parseFloat(f.costo)||0).toFixed(2)}</td>
+      <td style="font-weight:600">
+        S/.${(parseFloat(f.costoTotal || f.costo)||0).toFixed(2)}
+        ${f.repuestos?.length ? `<br><span style="font-size:10px;color:var(--text2)">${f.repuestos.length} repuesto${f.repuestos.length>1?'s':''}</span>` : ''}
+      </td>
       <td style="white-space:nowrap">
         <button class="btn btn-outline btn-sm" onclick="APP.editFalla('${f.id}')">Editar</button>
         <button class="btn btn-sm" style="background:rgba(46,158,91,.12);color:var(--green);border:1px solid rgba(46,158,91,.3)" onclick="APP.closeFalla('${f.id}')">✓ Cerrar</button>
@@ -1650,7 +1765,155 @@ async function deleteFalla(id) {
   await deleteDoc(doc(db, 'fallas', id));
   showToast('🗑 Falla eliminada', 'success');
 }
-// ─── EDITAR FALLA EXISTENTE (updateDoc, no crea duplicado) ───
+// ─── FOTOS / EVIDENCIAS ───
+function initFotos(existentes) {
+  fotosNuevas = [];
+  fotosExistentes = existentes ? [...existentes] : [];
+  renderFotosPreview();
+  renderFotosGuardadas();
+}
+
+function handleFotos(files) {
+  const nuevas = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (!nuevas.length) return;
+  fotosNuevas.push(...nuevas);
+  renderFotosPreview();
+}
+
+function renderFotosPreview() {
+  const container = document.getElementById('fotosPreview');
+  if (!container) return;
+  container.innerHTML = fotosNuevas.map((f, i) => {
+    const url = URL.createObjectURL(f);
+    return `<div class="foto-thumb">
+      <img src="${url}" alt="foto ${i+1}">
+      <button class="foto-del" onclick="APP.removeFotoNueva(${i})" type="button">×</button>
+      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(26,110,181,.8);color:#fff;font-size:9px;padding:2px 4px;text-align:center;font-family:var(--font)">PENDIENTE</div>
+    </div>`;
+  }).join('');
+}
+
+function renderFotosGuardadas() {
+  const container = document.getElementById('fotosGuardadas');
+  if (!container) return;
+  if (!fotosExistentes.length) { container.innerHTML = ''; return; }
+  container.innerHTML = fotosExistentes.map((f, i) => `
+    <div class="foto-thumb" onclick="APP.verFoto('${f.url}','${f.nombre||''}')">
+      <img src="${f.url}" alt="${f.nombre||'foto'}">
+      <button class="foto-del" onclick="event.stopPropagation();APP.eliminarFotoGuardada(${i})" type="button">×</button>
+    </div>`).join('');
+}
+
+function removeFotoNueva(i) {
+  fotosNuevas.splice(i, 1);
+  renderFotosPreview();
+}
+
+async function eliminarFotoGuardada(i) {
+  if (!confirm('¿Eliminar esta foto?')) return;
+  const foto = fotosExistentes[i];
+  try {
+    if (foto.path) {
+      const ref = storageRef(storage, foto.path);
+      await deleteObject(ref);
+    }
+    fotosExistentes.splice(i, 1);
+    // Si estamos editando, actualizar Firestore
+    if (editingFallaId) {
+      await updateDoc(doc(db, 'fallas', editingFallaId), { fotos: fotosExistentes });
+    }
+    renderFotosGuardadas();
+    showToast('🗑 Foto eliminada', 'success');
+  } catch(e) {
+    console.error(e);
+    showToast('Error al eliminar foto', 'error');
+  }
+}
+
+function verFoto(url, nombre) {
+  document.getElementById('fotoViewerImg').src = url;
+  document.getElementById('fotoViewerCaption').textContent = nombre || '';
+  document.getElementById('fotoViewer').classList.add('open');
+}
+
+async function subirFotos(fallaId) {
+  if (!fotosNuevas.length) return fotosExistentes;
+  const statusEl = document.getElementById('fotosStatus');
+  if (statusEl) statusEl.textContent = `Subiendo ${fotosNuevas.length} foto(s)...`;
+  const subidas = [...fotosExistentes];
+  for (let i = 0; i < fotosNuevas.length; i++) {
+    const file = fotosNuevas[i];
+    const ext = file.name.split('.').pop() || 'jpg';
+    const path = `fallas/${fallaId}/${Date.now()}_${i}.${ext}`;
+    const ref = storageRef(storage, path);
+    await uploadBytes(ref, file);
+    const url = await getDownloadURL(ref);
+    subidas.push({ url, path, nombre: file.name, fecha: new Date().toISOString() });
+    if (statusEl) statusEl.textContent = `Subida ${i+1} de ${fotosNuevas.length}...`;
+  }
+  fotosNuevas = [];
+  fotosExistentes = subidas;
+  if (statusEl) statusEl.textContent = '';
+  return subidas;
+}
+
+// ─── REPUESTOS / GASTOS ADICIONALES ───
+let repuestos = []; // [{desc, qty, precio}]
+let fotosNuevas = []; // Files pendientes de subir
+let fotosExistentes = []; // [{url, path, nombre}] ya en Firebase
+
+function initRepuestos(lista) {
+  repuestos = lista ? [...lista] : [];
+  renderRepuestosList();
+}
+
+function addRepuesto() {
+  repuestos.push({ desc: '', qty: 1, precio: 0 });
+  renderRepuestosList();
+}
+
+function removeRepuesto(i) {
+  repuestos.splice(i, 1);
+  renderRepuestosList();
+}
+
+function updateRepuesto(i, field, val) {
+  repuestos[i][field] = field === 'qty' || field === 'precio' ? parseFloat(val) || 0 : val;
+  recalcRepuestosTotal();
+}
+
+function recalcRepuestosTotal() {
+  const total = repuestos.reduce((a, r) => a + (r.qty * r.precio), 0);
+  const el = document.getElementById('repuestosTotal');
+  if (el) el.textContent = `S/. ${total.toFixed(2)}`;
+}
+
+function renderRepuestosList() {
+  const container = document.getElementById('repuestosList');
+  if (!container) return;
+  if (repuestos.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:14px;color:var(--text3);font-size:13px;border:1px dashed var(--border2);border-radius:8px">Sin repuestos agregados. Presiona + AGREGAR.</div>`;
+    recalcRepuestosTotal();
+    return;
+  }
+  container.innerHTML = repuestos.map((r, i) => `
+    <div style="display:grid;grid-template-columns:1fr 70px 90px 32px;gap:6px;align-items:center">
+      <input class="form-input" style="font-size:14px;padding:8px 10px" placeholder="Descripción del repuesto"
+        value="${r.desc.replace(/"/g,'&quot;')}"
+        oninput="APP.updateRepuesto(${i},'desc',this.value)">
+      <input class="form-input" style="font-size:14px;padding:8px 10px;text-align:center" type="number" min="1" placeholder="Cant."
+        value="${r.qty}"
+        oninput="APP.updateRepuesto(${i},'qty',this.value)">
+      <input class="form-input" style="font-size:14px;padding:8px 10px;text-align:right" type="number" min="0" step="0.01" placeholder="S/. 0.00"
+        value="${r.precio || ''}"
+        oninput="APP.updateRepuesto(${i},'precio',this.value)">
+      <button onclick="APP.removeRepuesto(${i})" type="button"
+        style="background:rgba(214,59,59,.1);border:1px solid rgba(214,59,59,.3);border-radius:6px;color:var(--red);width:32px;height:36px;cursor:pointer;font-size:16px;line-height:1">×</button>
+    </div>`).join('');
+  recalcRepuestosTotal();
+}
+
+// ─── EDITAR FALLA EXISTENTE ───
 function editFalla(id) {
   const f = allFallas.find(x => x.id === id);
   if (!f) return;
@@ -1668,7 +1931,10 @@ function editFalla(id) {
   document.getElementById('mEstado').value  = f.estadoFalla || 'ABIERTO';
   document.getElementById('mKm').value      = '';
   document.getElementById('mObs').value     = '';
-  updateEstadoBtns(); updateGravBtns(); updatePagoBtns(); toggleFallaFields();
+  updateEstadoBtns(); updateGravBtns(); updatePagoBtns();
+  initRepuestos(f.repuestos || []);
+  initFotos(f.fotos || []);
+  toggleFallaFields();
   document.getElementById('checklistModal').classList.add('open');
 }
 function openFallaModal() {
@@ -2166,8 +2432,8 @@ function renderPagos() {
   // KPIs pagos
   const pend     = allFallas.filter(f => (f.estadoPago || 'PENDIENTE') === 'PENDIENTE').length;
   const pag      = allFallas.filter(f => f.estadoPago === 'PAGADO').length;
-  const montoPend= allFallas.filter(f => (f.estadoPago||'PENDIENTE')==='PENDIENTE').reduce((a,f)=>a+(parseFloat(f.costo)||0),0);
-  const montoPag = allFallas.filter(f => f.estadoPago==='PAGADO').reduce((a,f)=>a+(parseFloat(f.costo)||0),0);
+  const montoPend= allFallas.filter(f => (f.estadoPago||'PENDIENTE')==='PENDIENTE').reduce((a,f)=>a+(parseFloat(f.costoTotal||f.costo)||0),0);
+  const montoPag = allFallas.filter(f => f.estadoPago==='PAGADO').reduce((a,f)=>a+(parseFloat(f.costoTotal||f.costo)||0),0);
   const badge    = document.getElementById('pagosBadge');
 
   document.getElementById('p-pend').textContent       = pend;
@@ -2193,7 +2459,14 @@ function renderPagos() {
       <td style="max-width:180px;white-space:normal;font-size:12px;color:var(--text2)">${f.descripcion || '—'}</td>
       <td style="color:var(--text2)">${f.tecnico || '—'}</td>
       <td><span class="estado-badge ${eClass}">${f.estadoFalla || '—'}</span></td>
-      <td style="font-weight:700;color:var(--accent)">S/.${(parseFloat(f.costo)||0).toFixed(2)}</td>
+      <td style="font-weight:700;color:var(--accent)">
+        S/.${(parseFloat(f.costoTotal||f.costo)||0).toFixed(2)}
+        ${f.repuestos?.length ? `
+          <div style="font-size:10px;color:var(--text2);font-weight:400;margin-top:2px">
+            Servicio: S/.${(parseFloat(f.costo)||0).toFixed(2)}<br>
+            Repuestos: S/.${(parseFloat(f.costoRepuestos)||0).toFixed(2)}
+          </div>` : ''}
+      </td>
       <td><span class="${pagoClass}">${pagoLabel}</span></td>
       <td>
         ${!isPagado
@@ -2220,6 +2493,8 @@ window.APP = {
   filterPagos, marcarPagado, marcarPendiente,
   openChecklist, openAddUnit, openFallaModal,
   selectEstado, selectGrav, selectTipo, selectPago,
+  addRepuesto, removeRepuesto, updateRepuesto,
+  handleFotos, removeFotoNueva, eliminarFotoGuardada, verFoto,
   saveAllOk, saveChecklist, saveNewUnit,
   closeFalla, editFalla, deleteFalla, exportReport,
   loadUnitHistory,
