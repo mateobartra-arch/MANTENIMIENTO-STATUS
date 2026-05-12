@@ -504,11 +504,61 @@
   /* ══════════════════════════════════════════
      RESPONSIVE — MÓVIL MUY PEQUEÑO (max 380px)
   ══════════════════════════════════════════ */
-  @media (max-width: 380px) {
-    .fleet-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .kpi-bar    { grid-template-columns: 1fr 1fr; }
-    .unit-placa { font-size: 15px; }
-    .nav-btn    { font-size: 11px; padding: 12px 10px; }
+  /* ══════════════════════════════════════════
+     NEUMÁTICOS
+  ══════════════════════════════════════════ */
+  .neum-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px,1fr)); gap:16px; }
+  .neum-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow); }
+  .neum-card-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; }
+  .neum-placa { font-family:var(--font); font-size:22px; font-weight:900; color:var(--text); }
+  .neum-tipo  { font-size:11px; color:var(--text2); letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+  .neum-fecha { font-size:11px; color:var(--text3); text-align:right; }
+
+  .neum-diagram { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; position:relative; }
+  .neum-diagram::after { content:''; position:absolute; left:50%; top:8%; bottom:8%; width:2px; background:var(--border2); transform:translateX(-50%); pointer-events:none; }
+
+  .neum-pos { display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 6px; border-radius:8px; border:2px solid var(--border); background:var(--bg3); cursor:pointer; transition:all .2s; }
+  .neum-pos:hover { border-color:var(--accent); transform:translateY(-1px); }
+  .neum-pos.verde    { border-color:#2e9e5b; background:rgba(46,158,91,.07); }
+  .neum-pos.amarillo { border-color:#c9960a; background:rgba(201,150,10,.07); }
+  .neum-pos.rojo     { border-color:#d63b3b; background:rgba(214,59,59,.07); animation:pulse-red 1.8s infinite; }
+  .neum-pos.sin      { border-color:var(--border2); }
+  @keyframes pulse-red { 0%,100%{box-shadow:0 0 0 0 rgba(214,59,59,.25)} 60%{box-shadow:0 0 0 5px rgba(214,59,59,.0)} }
+
+  .neum-pos-num  { font-family:var(--font); font-size:9px; font-weight:700; color:var(--text3); letter-spacing:1px; }
+  .neum-cocada   { font-family:var(--font); font-size:20px; font-weight:900; line-height:1; }
+  .neum-cocada.verde    { color:#2e9e5b; }
+  .neum-cocada.amarillo { color:#c9960a; }
+  .neum-cocada.rojo     { color:#d63b3b; }
+  .neum-cocada.sin      { color:var(--text3); font-size:14px; }
+  .neum-marca { font-size:9px; color:var(--text3); text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:72px; text-align:center; }
+  .chip-neum { font-size:9px; font-family:var(--font); font-weight:700; letter-spacing:.5px; padding:2px 5px; border-radius:3px; text-transform:uppercase; margin-top:1px; }
+  .chip-bueno     { background:rgba(46,158,91,.15); color:#2e9e5b; }
+  .chip-chequear  { background:rgba(201,150,10,.15); color:#c9960a; }
+  .chip-reencauche{ background:rgba(214,59,59,.15); color:#d63b3b; }
+  .chip-sin       { background:rgba(154,176,200,.1); color:var(--text3); }
+
+  /* Modal inspección */
+  .neum-row-header { display:grid; grid-template-columns:32px 1fr 60px 60px 60px 100px 90px 60px; gap:6px; align-items:center; padding:6px 0; font-family:var(--font); font-size:10px; color:var(--text2); letter-spacing:1px; text-transform:uppercase; border-bottom:2px solid var(--border); margin-bottom:4px; }
+  .neum-row        { display:grid; grid-template-columns:32px 1fr 60px 60px 60px 100px 90px 60px; gap:6px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); }
+  .neum-row:last-child { border-bottom:none; }
+  .neum-pos-badge { width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font-family:var(--font); font-size:13px; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .neum-pos-desc  { font-size:11px; color:var(--text2); line-height:1.3; }
+  .neum-inp { background:var(--bg3); border:1px solid var(--border2); border-radius:6px; padding:7px 6px; color:var(--text); font-family:var(--font); font-size:15px; font-weight:700; text-align:center; outline:none; width:100%; transition:border-color .2s; }
+  .neum-inp:focus { border-color:var(--accent); }
+  .neum-inp.text-inp { font-size:12px; font-weight:400; text-align:left; padding:7px 8px; }
+  .neum-semaforo { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  .neum-semaforo.verde    { background:#2e9e5b; }
+  .neum-semaforo.amarillo { background:#c9960a; }
+  .neum-semaforo.rojo     { background:#d63b3b; }
+  .neum-semaforo.sin      { background:var(--border2); }
+  .neum-prom { font-family:var(--font); font-size:13px; font-weight:700; }
+
+  @media (max-width:640px) {
+    .neum-grid { grid-template-columns:1fr; }
+    .neum-row-header, .neum-row { grid-template-columns:24px 1fr 48px 48px 48px 1fr; }
+    .neum-row-header div:nth-child(7), .neum-row > *:nth-child(7),
+    .neum-row-header div:nth-child(8), .neum-row > *:nth-child(8) { display:none; }
   }
 </style>
 </head>
@@ -539,6 +589,9 @@
   <button class="nav-btn" data-page="historial">🔍 Historial por Unidad</button>
   <button class="nav-btn" data-page="pagos">💰 Pagos
     <span class="nav-badge" id="pagosBadge" style="display:none;background:#e07b1a">0</span>
+  </button>
+  <button class="nav-btn" data-page="neumaticos">🛞 Neumáticos
+    <span class="nav-badge" id="neumBadge" style="display:none;background:#d63b3b">0</span>
   </button>
   <button class="nav-btn" data-page="dashboard">📈 Dashboard</button>
 </nav>
@@ -754,6 +807,80 @@
         <tr><td colspan="9" class="loading"><div class="spinner"></div>Cargando...</td></tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: NEUMÁTICOS
+═══════════════════════════════════════════════════ -->
+<div id="page-neumaticos" class="page">
+  <div class="kpi-bar" style="margin-bottom:20px">
+    <div class="kpi-card" style="--kpi-color:var(--green)"><div class="kpi-label">Llantas OK</div><div class="kpi-value" id="nkpi-ok">—</div><div class="kpi-sub">Cocada ≥ 10mm</div></div>
+    <div class="kpi-card" style="--kpi-color:var(--yellow)"><div class="kpi-label">Por Chequear</div><div class="kpi-value" id="nkpi-chk">—</div><div class="kpi-sub">Cocada 8–10mm</div></div>
+    <div class="kpi-card" style="--kpi-color:var(--red)"><div class="kpi-label">Reencauche</div><div class="kpi-value" id="nkpi-reen">—</div><div class="kpi-sub">Cocada &lt; 8mm</div></div>
+    <div class="kpi-card" style="--kpi-color:var(--text2)"><div class="kpi-label">Sin Inspección</div><div class="kpi-value" id="nkpi-sin">—</div><div class="kpi-sub">Unidades pendientes</div></div>
+    <div class="kpi-card" style="--kpi-color:var(--accent)"><div class="kpi-label">Última Inspección</div><div class="kpi-value" id="nkpi-fecha" style="font-size:17px;line-height:1.3">—</div><div class="kpi-sub">Fecha más reciente</div></div>
+  </div>
+  <div class="p1-toolbar" style="margin-bottom:16px">
+    <input class="search-box" placeholder="🔍 Buscar placa..." id="nSearch" oninput="APP.filterNeum()">
+    <select class="filter-select" id="nFilterTipo" onchange="APP.filterNeum()">
+      <option value="">Todos los tipos</option>
+      <option value="TRACTO">Tracto</option>
+      <option value="ENCAPSULADO">Encapsulado</option>
+      <option value="PLATAFORMA">Plataforma</option>
+      <option value="PLATAFORMA CON BARANDA">Plat. c/Baranda</option>
+    </select>
+    <select class="filter-select" id="nFilterEstado" onchange="APP.filterNeum()">
+      <option value="">Todos los estados</option>
+      <option value="rojo">🔴 Reencauche urgente</option>
+      <option value="amarillo">🟡 Por chequear</option>
+      <option value="verde">🟢 OK</option>
+      <option value="sin">⚪ Sin inspección</option>
+    </select>
+  </div>
+  <div class="neum-grid" id="neumGrid">
+    <div class="loading"><div class="spinner"></div>Cargando...</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL: INSPECCIÓN NEUMÁTICA
+═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="neumModal">
+  <div class="modal" style="max-width:720px">
+    <button class="modal-close" onclick="APP.closeModal('neumModal')">×</button>
+    <div class="modal-title" id="nmTitle">CDJ712</div>
+    <div class="modal-sub" id="nmSub">Tracto · Inspección Neumática</div>
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <div class="form-group" style="flex:1;min-width:130px;margin-bottom:0">
+        <div class="form-label">Fecha</div>
+        <input class="form-input" type="date" id="nm-fecha">
+      </div>
+      <div class="form-group" style="flex:1;min-width:130px;margin-bottom:0">
+        <div class="form-label">Kilometraje</div>
+        <input class="form-input" type="number" id="nm-km" placeholder="125000">
+      </div>
+      <div class="form-group" style="flex:1;min-width:130px;margin-bottom:0">
+        <div class="form-label">Inspector</div>
+        <input class="form-input" id="nm-inspector" placeholder="Nombre del inspector">
+      </div>
+    </div>
+    <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:32px 1fr 60px 60px 60px 100px 85px 60px;gap:6px;padding:0 0 8px;margin-bottom:4px;border-bottom:2px solid var(--border);font-family:var(--font);font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;align-items:center">
+        <div></div><div>Posición</div>
+        <div style="text-align:center">Int.</div><div style="text-align:center">Med.</div><div style="text-align:center">Ext.</div>
+        <div>Marca</div><div>Medida</div><div style="text-align:center">Prom 🚦</div>
+      </div>
+      <div id="nmRows"></div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Observaciones</div>
+      <textarea class="form-textarea" id="nm-obs" placeholder="Observaciones generales..." style="min-height:56px;margin-top:6px"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="APP.closeModal('neumModal')">Cancelar</button>
+      <button class="btn btn-accent" id="btnSaveNeum" onclick="APP.saveInspeccion()">💾 Guardar Inspección</button>
+    </div>
   </div>
 </div>
 
@@ -1154,6 +1281,7 @@ async function init() {
   listenUnits();
   listenFallas();
   listenTodayChecks();
+  listenInspecciones();
 }
 
 async function seedUnitsIfEmpty() {
@@ -2487,10 +2615,238 @@ async function marcarPendiente(id) {
   showToast('↩ Revertido a pendiente', 'success');
 }
 
+// ═══════════════════════════════════════════════════
+// MÓDULO NEUMÁTICOS
+// Semáforo: verde ≥10mm · amarillo 8-9.9mm · rojo <8mm
+// ═══════════════════════════════════════════════════
+let allInspecciones  = {};   // placa → última inspección
+let currentNeumPlaca = null;
+let currentNeumTipo  = null;
+let nmPosiciones     = [];   // estado editable del modal
+
+function cocadaColor(v) {
+  const n = parseFloat(v);
+  if (isNaN(n) || v === '' || v === null || v === undefined) return 'sin';
+  if (n >= 10) return 'verde';
+  if (n >= 8)  return 'amarillo';
+  return 'rojo';
+}
+function promNeum(int_, med, ext) {
+  const vals = [int_, med, ext].map(x => parseFloat(x)).filter(x => !isNaN(x) && x !== '');
+  if (!vals.length) return null;
+  return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+}
+function peorCocada(posiciones) {
+  let peor = null;
+  (posiciones||[]).forEach(p => {
+    const pr = parseFloat(promNeum(p.interior, p.medio, p.exterior));
+    if (!isNaN(pr) && (peor === null || pr < peor)) peor = pr;
+  });
+  return peor;
+}
+
+function listenInspecciones() {
+  onSnapshot(collection(db, 'inspecciones_neumaticas'), snap => {
+    const temp = {};
+    snap.docs.forEach(d => {
+      const data = { id:d.id, ...d.data() };
+      if (!temp[data.placa] || (data.fecha||'') > (temp[data.placa].fecha||''))
+        temp[data.placa] = data;
+    });
+    allInspecciones = temp;
+    renderNeumGrid();
+    updateNeumKPIs();
+  });
+}
+
+function updateNeumKPIs() {
+  let ok=0, chk=0, reen=0, sin=0, fechaMax='';
+  allUnits.forEach(u => {
+    const insp = allInspecciones[u.placa];
+    if (!insp) { sin++; return; }
+    if ((insp.fecha||'') > fechaMax) fechaMax = insp.fecha||'';
+    (insp.posiciones||[]).forEach(p => {
+      const c = cocadaColor(promNeum(p.interior, p.medio, p.exterior));
+      if (c==='verde') ok++;
+      else if (c==='amarillo') chk++;
+      else if (c==='rojo') reen++;
+      else sin++;
+    });
+  });
+  const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  s('nkpi-ok', ok); s('nkpi-chk', chk); s('nkpi-reen', reen); s('nkpi-sin', sin);
+  s('nkpi-fecha', fechaMax||'—');
+  const badge = document.getElementById('neumBadge');
+  if (badge) { badge.textContent=reen; badge.style.display=reen>0?'':'none'; }
+}
+
+function filterNeum() { renderNeumGrid(); }
+
+function renderNeumGrid() {
+  const grid = document.getElementById('neumGrid');
+  if (!grid) return;
+  const search   = (document.getElementById('nSearch')?.value||'').toLowerCase();
+  const filtTipo = document.getElementById('nFilterTipo')?.value||'';
+  const filtEst  = document.getElementById('nFilterEstado')?.value||'';
+
+  let units = allUnits.filter(u => {
+    if (search && !u.placa.toLowerCase().includes(search) && !(u.conductor||'').toLowerCase().includes(search)) return false;
+    if (filtTipo && u.tipo!==filtTipo) return false;
+    const insp = allInspecciones[u.placa];
+    if (filtEst==='sin')     return !insp;
+    if (filtEst && !insp)    return false;
+    if (filtEst) {
+      const peor = peorCocada(insp.posiciones||[]);
+      if (filtEst==='rojo'    && cocadaColor(peor)!=='rojo')     return false;
+      if (filtEst==='amarillo'&& cocadaColor(peor)!=='amarillo') return false;
+      if (filtEst==='verde'   && cocadaColor(peor)!=='verde')    return false;
+    }
+    return true;
+  });
+
+  if (!units.length) { grid.innerHTML=`<div class="empty-state"><p>No se encontraron unidades</p></div>`; return; }
+
+  grid.innerHTML = units.map(u => {
+    const insp  = allInspecciones[u.placa];
+    const pos6  = insp?.posiciones || Array(6).fill({});
+    const peor  = peorCocada(pos6);
+    const peorC = cocadaColor(peor);
+    const alertColor = peorC==='rojo'?'#d63b3b':peorC==='amarillo'?'#c9960a':peorC==='verde'?'#2e9e5b':'var(--text3)';
+    const alertLabel = peorC==='rojo'?'⚠️ REENCAUCHE URGENTE':peorC==='amarillo'?'🟡 Chequear llantas':peorC==='verde'?'✅ Todo OK':'—';
+
+    const posCards = [0,1,2,3,4,5].map(i => {
+      const p    = pos6[i] || {};
+      const prom = promNeum(p.interior, p.medio, p.exterior);
+      const c    = cocadaColor(prom);
+      const chipLabel = c==='verde'?'OK':c==='amarillo'?'CHK':c==='rojo'?'REEN':'—';
+      const chipClass = c==='verde'?'chip-bueno':c==='amarillo'?'chip-chequear':c==='rojo'?'chip-reencauche':'chip-sin';
+      return `<div class="neum-pos ${c}" onclick="APP.openInspeccion('${u.placa}')">
+        <div class="neum-pos-num">P${i+1}</div>
+        <div class="neum-cocada ${c}">${prom!==null?prom:'—'}</div>
+        <div class="neum-marca">${(p.marca||'—').substring(0,10)}</div>
+        <span class="chip-neum ${chipClass}">${chipLabel}</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="neum-card">
+      <div class="neum-card-header">
+        <div>
+          <div class="neum-placa">${u.placa}</div>
+          <div class="neum-tipo">${u.tipo}${u.tolva?` · ${u.tolva}`:''}</div>
+        </div>
+        <div style="text-align:right">
+          ${insp
+            ? `<div class="neum-fecha">📅 ${insp.fecha||'—'}</div><div class="neum-fecha">${insp.km?parseInt(insp.km).toLocaleString()+' km':'—'}</div>${insp.inspector?`<div class="neum-fecha">👤 ${insp.inspector}</div>`:''}`
+            : `<div class="neum-fecha" style="color:var(--red);font-weight:700">Sin inspección</div>`}
+          <button onclick="APP.openInspeccion('${u.placa}')"
+            style="margin-top:6px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 14px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:opacity .2s"
+            onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+            ${insp?'✏️ Actualizar':'+ Inspeccionar'}
+          </button>
+        </div>
+      </div>
+      <div class="neum-diagram">${posCards}</div>
+      ${insp?`<div style="text-align:center;padding:6px 10px;border-radius:7px;border:1px solid ${alertColor}40;background:${alertColor}0d;font-family:var(--font);font-size:12px;font-weight:700;color:${alertColor}">${alertLabel}</div>`:''}
+      ${insp?.obs?`<div style="font-size:11px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-style:italic">"${insp.obs}"</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function openInspeccion(placa) {
+  currentNeumPlaca = placa;
+  const unit = allUnits.find(u => u.placa===placa);
+  currentNeumTipo = unit?.tipo || 'TRACTO';
+  document.getElementById('nmTitle').textContent = placa;
+  document.getElementById('nmSub').textContent   = `${currentNeumTipo} · ${unit?.ubicacion||'—'} · Inspección Neumática`;
+  const insp = allInspecciones[placa];
+  document.getElementById('nm-fecha').value     = insp?.fecha    || new Date().toISOString().split('T')[0];
+  document.getElementById('nm-km').value        = insp?.km       || '';
+  document.getElementById('nm-inspector').value = insp?.inspector|| '';
+  document.getElementById('nm-obs').value       = insp?.obs      || '';
+  nmPosiciones = Array(6).fill(null).map((_,i) => {
+    const s = insp?.posiciones?.[i] || {};
+    return { interior:s.interior??'', medio:s.medio??'', exterior:s.exterior??'', marca:s.marca??'', medida:s.medida??'' };
+  });
+  renderNmRows();
+  document.getElementById('neumModal').classList.add('open');
+}
+
+function renderNmRows() {
+  const c = document.getElementById('nmRows');
+  if (!c) return;
+  const labels = ['Delantera Izq.','Delantera Der.','Media Izq.','Media Der.','Trasera Izq.','Trasera Der.'];
+  c.innerHTML = nmPosiciones.map((p,i) => {
+    const prom  = promNeum(p.interior, p.medio, p.exterior);
+    const col   = cocadaColor(prom);
+    return `<div class="neum-row">
+      <div class="neum-pos-badge">${i+1}</div>
+      <div class="neum-pos-desc">${labels[i]}</div>
+      <input class="neum-inp" type="number" min="0" max="20" step="0.5" placeholder="mm"
+        value="${p.interior}" oninput="APP.nmUpdate(${i},'interior',this.value)">
+      <input class="neum-inp" type="number" min="0" max="20" step="0.5" placeholder="mm"
+        value="${p.medio}" oninput="APP.nmUpdate(${i},'medio',this.value)">
+      <input class="neum-inp" type="number" min="0" max="20" step="0.5" placeholder="mm"
+        value="${p.exterior}" oninput="APP.nmUpdate(${i},'exterior',this.value)">
+      <input class="neum-inp text-inp" placeholder="GITI, SUNFULL…"
+        value="${p.marca}" oninput="APP.nmUpdate(${i},'marca',this.value)">
+      <input class="neum-inp text-inp" placeholder="295/80R"
+        value="${p.medida}" oninput="APP.nmUpdate(${i},'medida',this.value)">
+      <div style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px">
+        <div class="neum-semaforo ${col}"></div>
+        <span class="neum-prom" style="color:${col==='verde'?'#2e9e5b':col==='amarillo'?'#c9960a':col==='rojo'?'#d63b3b':'var(--text3)'}">${prom??'—'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function nmUpdate(i, field, val) {
+  nmPosiciones[i][field] = val;
+  // Recalcular solo el semáforo de esa fila (sin re-renderizar todo)
+  const rows = document.querySelectorAll('#nmRows .neum-row');
+  if (!rows[i]) return;
+  const p    = nmPosiciones[i];
+  const prom = promNeum(p.interior, p.medio, p.exterior);
+  const col  = cocadaColor(prom);
+  const sem  = rows[i].querySelector('.neum-semaforo');
+  const pr   = rows[i].querySelector('.neum-prom');
+  if (sem) sem.className = `neum-semaforo ${col}`;
+  if (pr)  { pr.textContent=prom??'—'; pr.style.color=col==='verde'?'#2e9e5b':col==='amarillo'?'#c9960a':col==='rojo'?'#d63b3b':'var(--text3)'; }
+}
+
+async function saveInspeccion() {
+  if (!currentNeumPlaca) return;
+  const btn = document.getElementById('btnSaveNeum');
+  if (btn) { btn.disabled=true; btn.textContent='⏳ Guardando...'; btn.style.opacity='.6'; }
+  try {
+    const fecha     = document.getElementById('nm-fecha').value     || new Date().toISOString().split('T')[0];
+    const km        = parseInt(document.getElementById('nm-km').value)||0;
+    const inspector = document.getElementById('nm-inspector').value.trim();
+    const obs       = document.getElementById('nm-obs').value.trim();
+    const posiciones = nmPosiciones.map(p => ({
+      interior: p.interior!==''?parseFloat(p.interior):null,
+      medio:    p.medio!==''   ?parseFloat(p.medio):null,
+      exterior: p.exterior!==''?parseFloat(p.exterior):null,
+      marca:    p.marca.trim(),
+      medida:   p.medida.trim(),
+    }));
+    await addDoc(collection(db, 'inspecciones_neumaticas'), {
+      placa:currentNeumPlaca, tipo:currentNeumTipo, fecha, km, inspector, obs, posiciones,
+      creadoEn:serverTimestamp(),
+    });
+    APP.closeModal('neumModal');
+    showToast(`✅ Inspección de ${currentNeumPlaca} guardada`, 'success');
+  } catch(e) {
+    console.error(e); showToast('Error al guardar', 'error');
+  } finally {
+    if (btn) { btn.disabled=false; btn.textContent='💾 Guardar Inspección'; btn.style.opacity=''; }
+  }
+}
+
 // ─── EXPOSE AS window.APP ───
 window.APP = {
   filterFleet, filterReports, filterHUnits,
   filterPagos, marcarPagado, marcarPendiente,
+  filterNeum, openInspeccion, nmUpdate, saveInspeccion,
   openChecklist, openAddUnit, openFallaModal,
   selectEstado, selectGrav, selectTipo, selectPago,
   addRepuesto, removeRepuesto, updateRepuesto,
@@ -2513,8 +2869,9 @@ document.querySelector('nav').addEventListener('click', e => {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`page-${page}`).classList.add('active');
   btn.classList.add('active');
-  if (page === 'dashboard') updateDashboard();
-  if (page === 'pagos') renderPagos();
+  if (page === 'dashboard')   updateDashboard();
+  if (page === 'pagos')       renderPagos();
+  if (page === 'neumaticos')  { renderNeumGrid(); updateNeumKPIs(); }
 });
 
 // Modal overlay click to close
