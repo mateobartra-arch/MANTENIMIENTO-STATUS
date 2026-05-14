@@ -898,9 +898,16 @@
 ═══════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="checklistModal">
   <div class="modal">
-    <button class="modal-close" onclick="editingFallaId=null;APP.closeModal('checklistModal')">×</button>
+    <button class="modal-close" onclick="editingFallaId=null;document.getElementById('mFechaGroup').style.display='none';APP.closeModal('checklistModal')">×</button>
     <div class="modal-title" id="mTitle">CFF841</div>
     <div class="modal-sub" id="mSub">Tracto · Espinar · Conductor: —</div>
+
+    <!-- Campo fecha — solo visible al editar una falla existente -->
+    <div class="form-group" id="mFechaGroup" style="display:none">
+      <div class="form-label">📅 Fecha de la Falla</div>
+      <input class="form-input" type="date" id="mFecha">
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">Esta fecha reemplazará la registrada originalmente</div>
+    </div>
 
     <div class="form-group">
       <div class="form-label">Estado de la Unidad Hoy</div>
@@ -1013,7 +1020,7 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="editingFallaId=null;APP.closeModal('checklistModal')">Cancelar</button>
+      <button class="btn btn-outline" onclick="editingFallaId=null;document.getElementById('mFechaGroup').style.display='none';APP.closeModal('checklistModal')">Cancelar</button>
       <button class="btn btn-green" id="btnSaveOk" onclick="APP.saveAllOk()">✓ Todo OK Rápido</button>
       <button class="btn btn-accent" id="btnSave" onclick="APP.saveChecklist()">💾 Guardar Reporte</button>
     </div>
@@ -1658,7 +1665,9 @@ async function saveChecklist() {
     if (editingFallaId) {
       // ── MODO EDICIÓN: updateDoc sobre el doc existente, sin crear uno nuevo ──
       const fotosGuardadas = await subirFotos(editingFallaId);
+      const fechaEditada = document.getElementById('mFecha').value || null;
       await updateDoc(doc(db, 'fallas', editingFallaId), {
+        ...(fechaEditada && { fecha: fechaEditada }),
         descripcion:      data.descripcion,
         gravedad:         data.gravedad || 'LEVE',
         accionCorrectiva: data.accionCorrectiva,
@@ -1673,13 +1682,14 @@ async function saveChecklist() {
       });
       const placaEdit = currentUnit.placa;
       editingFallaId = null;
+      document.getElementById('mFechaGroup').style.display = 'none';
       closeModal('checklistModal');
       setTimeout(() => {
         document.getElementById('successTitle').textContent = '✏️ Actualizado con éxito';
         document.getElementById('successMsg').innerHTML = `
           <strong style="font-size:16px">${placaEdit}</strong><br>
           <span style="color:var(--text2)">Los cambios fueron guardados correctamente.</span><br>
-          <span style="font-size:11px;color:var(--text3);margin-top:4px;display:block">Fecha original conservada sin cambios.</span>
+          ${fechaEditada ? `<span style="font-size:11px;color:var(--text3);margin-top:4px;display:block">Fecha actualizada a: ${fechaEditada}</span>` : ''}
         `;
         document.getElementById('successModal').classList.add('open');
       }, 150);
@@ -2045,10 +2055,10 @@ function renderRepuestosList() {
 function editFalla(id) {
   const f = allFallas.find(x => x.id === id);
   if (!f) return;
-  editingFallaId = id; // marcar que estamos editando, no creando
+  editingFallaId = id;
   currentUnit = allUnits.find(u => u.placa === f.placa) || { placa: f.placa, tipo: f.tipo, ubicacion: f.ubicacion, conductor: '' };
   document.getElementById('mTitle').textContent = f.placa;
-  document.getElementById('mSub').textContent = `✏️ Editando falla — ${f.fecha || ''}`;
+  document.getElementById('mSub').textContent = `✏️ Editando falla`;
   selectedEstado = 'OBSERVADO';
   selectedGrav = f.gravedad || '';
   selectedPago = f.estadoPago || 'PENDIENTE';
@@ -2059,6 +2069,9 @@ function editFalla(id) {
   document.getElementById('mEstado').value  = f.estadoFalla || 'ABIERTO';
   document.getElementById('mKm').value      = '';
   document.getElementById('mObs').value     = '';
+  // Mostrar y pre-llenar campo fecha editable
+  document.getElementById('mFecha').value   = f.fecha || new Date().toISOString().split('T')[0];
+  document.getElementById('mFechaGroup').style.display = 'block';
   updateEstadoBtns(); updateGravBtns(); updatePagoBtns();
   initRepuestos(f.repuestos || []);
   initFotos(f.fotos || []);
@@ -2066,7 +2079,8 @@ function editFalla(id) {
   document.getElementById('checklistModal').classList.add('open');
 }
 function openFallaModal() {
-  editingFallaId = null; // modo creación
+  editingFallaId = null;
+  document.getElementById('mFechaGroup').style.display = 'none'; // ocultar al crear
   document.getElementById('checklistModal').classList.add('open');
 }
 
@@ -2708,20 +2722,22 @@ function renderNeumGrid() {
 
   grid.innerHTML = units.map(u => {
     const insp  = allInspecciones[u.placa];
-    const pos6  = insp?.posiciones || Array(6).fill({});
+    const count = getPosCount(u.tipo);
+    const pos6  = insp?.posiciones || Array(count).fill({});
     const peor  = peorCocada(pos6);
     const peorC = cocadaColor(peor);
     const alertColor = peorC==='rojo'?'#d63b3b':peorC==='amarillo'?'#c9960a':peorC==='verde'?'#2e9e5b':'var(--text3)';
     const alertLabel = peorC==='rojo'?'⚠️ REENCAUCHE URGENTE':peorC==='amarillo'?'🟡 Chequear llantas':peorC==='verde'?'✅ Todo OK':'—';
 
-    const posCards = [0,1,2,3,4,5].map(i => {
+    const posCards = Array(count).fill(null).map((_,i) => {
       const p    = pos6[i] || {};
       const prom = promNeum(p.interior, p.medio, p.exterior);
       const c    = cocadaColor(prom);
+      const isSpare = i >= 6;
       const chipLabel = c==='verde'?'OK':c==='amarillo'?'CHK':c==='rojo'?'REEN':'—';
       const chipClass = c==='verde'?'chip-bueno':c==='amarillo'?'chip-chequear':c==='rojo'?'chip-reencauche':'chip-sin';
       return `<div class="neum-pos ${c}" onclick="APP.openInspeccion('${u.placa}')">
-        <div class="neum-pos-num">P${i+1}</div>
+        <div class="neum-pos-num">${isSpare?'🔁':'P'+( i+1)}</div>
         <div class="neum-cocada ${c}">${prom!==null?prom:'—'}</div>
         <div class="neum-marca">${(p.marca||'—').substring(0,10)}</div>
         <span class="chip-neum ${chipClass}">${chipLabel}</span>
@@ -2745,11 +2761,15 @@ function renderNeumGrid() {
           </button>
         </div>
       </div>
-      <div class="neum-diagram">${posCards}</div>
+      <div class="neum-diagram" style="${count===8?'grid-template-columns:1fr 1fr 1fr 1fr':''}">${posCards}</div>
       ${insp?`<div style="text-align:center;padding:6px 10px;border-radius:7px;border:1px solid ${alertColor}40;background:${alertColor}0d;font-family:var(--font);font-size:12px;font-weight:700;color:${alertColor}">${alertLabel}</div>`:''}
       ${insp?.obs?`<div style="font-size:11px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-style:italic">"${insp.obs}"</div>`:''}
     </div>`;
   }).join('');
+}
+
+function getPosCount(tipo) {
+  return tipo === 'ENCAPSULADO' ? 8 : 6;
 }
 
 function openInspeccion(placa) {
@@ -2763,7 +2783,8 @@ function openInspeccion(placa) {
   document.getElementById('nm-km').value        = insp?.km       || '';
   document.getElementById('nm-inspector').value = insp?.inspector|| '';
   document.getElementById('nm-obs').value       = insp?.obs      || '';
-  nmPosiciones = Array(6).fill(null).map((_,i) => {
+  const count = getPosCount(currentNeumTipo);
+  nmPosiciones = Array(count).fill(null).map((_,i) => {
     const s = insp?.posiciones?.[i] || {};
     return { interior:s.interior??'', medio:s.medio??'', exterior:s.exterior??'', marca:s.marca??'', medida:s.medida??'' };
   });
@@ -2774,13 +2795,19 @@ function openInspeccion(placa) {
 function renderNmRows() {
   const c = document.getElementById('nmRows');
   if (!c) return;
-  const labels = ['Delantera Izq.','Delantera Der.','Media Izq.','Media Der.','Trasera Izq.','Trasera Der.'];
+  const labels6 = ['Delantera Izq.','Delantera Der.','Media Izq.','Media Der.','Trasera Izq.','Trasera Der.'];
+  const labels8 = [...labels6, 'Repuesto 1','Repuesto 2'];
+  const labels = nmPosiciones.length === 8 ? labels8 : labels6;
   c.innerHTML = nmPosiciones.map((p,i) => {
     const prom  = promNeum(p.interior, p.medio, p.exterior);
     const col   = cocadaColor(prom);
-    return `<div class="neum-row">
-      <div class="neum-pos-badge">${i+1}</div>
-      <div class="neum-pos-desc">${labels[i]}</div>
+    const isSpare = i >= 6;
+    return `<div class="neum-row" ${isSpare?'style="background:rgba(0,0,0,.02)"':''}>
+      <div class="neum-pos-badge" style="${isSpare?'background:var(--text3)':''}">${i+1}</div>
+      <div class="neum-pos-desc">
+        ${labels[i]}
+        ${isSpare?'<br><span style="font-size:9px;color:var(--text3);letter-spacing:.5px">REPUESTO</span>':''}
+      </div>
       <input class="neum-inp" type="number" min="0" max="20" step="0.5" placeholder="mm"
         value="${p.interior}" oninput="APP.nmUpdate(${i},'interior',this.value)">
       <input class="neum-inp" type="number" min="0" max="20" step="0.5" placeholder="mm"
