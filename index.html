@@ -560,6 +560,54 @@
     .neum-row-header div:nth-child(7), .neum-row > *:nth-child(7),
     .neum-row-header div:nth-child(8), .neum-row > *:nth-child(8) { display:none; }
   }
+
+  /* ══════════════════════════════════════════
+     MANTENIMIENTO PREDICTIVO
+  ══════════════════════════════════════════ */
+  .pred-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+  .pred-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow); position:relative; overflow:hidden; transition:box-shadow .2s; }
+  .pred-card:hover { box-shadow:var(--shadow2); }
+  .pred-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
+  .pred-card.riesgo-critico::before { background:linear-gradient(90deg,#d63b3b,#ff6b6b); }
+  .pred-card.riesgo-alto::before    { background:linear-gradient(90deg,#e07b1a,#ffab40); }
+  .pred-card.riesgo-medio::before   { background:linear-gradient(90deg,#c9960a,#ffd740); }
+  .pred-card.riesgo-bajo::before    { background:linear-gradient(90deg,#2e9e5b,#69f0ae); }
+  .pred-card.sin-datos::before      { background:var(--border2); }
+  .pred-placa { font-family:var(--font); font-size:20px; font-weight:900; color:var(--text); }
+  .pred-tipo  { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; }
+  .pred-riesgo-badge { display:inline-block; padding:4px 12px; border-radius:20px; font-family:var(--font); font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin:8px 0 10px; }
+  .badge-critico { background:rgba(214,59,59,.12); color:#d63b3b; border:1px solid rgba(214,59,59,.3); }
+  .badge-alto    { background:rgba(224,123,26,.12); color:#e07b1a; border:1px solid rgba(224,123,26,.3); }
+  .badge-medio   { background:rgba(201,150,10,.12); color:#c9960a; border:1px solid rgba(201,150,10,.3); }
+  .badge-bajo    { background:rgba(46,158,91,.12);  color:#2e9e5b; border:1px solid rgba(46,158,91,.3); }
+  .badge-sin     { background:rgba(154,176,200,.08); color:var(--text3); border:1px solid var(--border2); }
+  .pred-score-wrap { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+  .pred-score-num { font-family:var(--font); font-size:48px; font-weight:900; line-height:1; }
+  .pred-score-num.critico { color:#d63b3b; } .pred-score-num.alto { color:#e07b1a; }
+  .pred-score-num.medio   { color:#c9960a; } .pred-score-num.bajo { color:#2e9e5b; }
+  .pred-score-num.sin     { color:var(--text3); }
+  .pred-score-info { display:flex; flex-direction:column; gap:3px; }
+  .pred-score-label { font-family:var(--font); font-size:10px; color:var(--text2); letter-spacing:1.5px; text-transform:uppercase; }
+  .pred-score-sub   { font-size:11px; color:var(--text3); }
+  .pred-sistemas { display:flex; flex-direction:column; gap:7px; margin-bottom:12px; }
+  .pred-sistema-row { display:flex; align-items:center; gap:8px; }
+  .pred-sistema-name { font-size:12px; color:var(--text2); min-width:110px; }
+  .pred-bar-wrap { flex:1; height:5px; background:var(--border2); border-radius:3px; overflow:hidden; }
+  .pred-bar { height:100%; border-radius:3px; transition:width .6s; }
+  .pred-bar.critico { background:#d63b3b; } .pred-bar.alto { background:#e07b1a; }
+  .pred-bar.medio   { background:#c9960a; } .pred-bar.bajo { background:#2e9e5b; }
+  .pred-pct { font-family:var(--font); font-size:11px; font-weight:700; width:28px; text-align:right; }
+  .pred-km-alert { border-radius:8px; padding:9px 12px; font-size:12px; color:var(--text2); line-height:1.4; }
+  .pred-km-alert.rojo   { background:rgba(214,59,59,.06);  border:1px solid rgba(214,59,59,.2); }
+  .pred-km-alert.naranja{ background:rgba(224,123,26,.06); border:1px solid rgba(224,123,26,.2); }
+  .pred-km-alert.verde  { background:rgba(46,158,91,.06);  border:1px solid rgba(46,158,91,.2); }
+  .pred-km-alert strong { font-weight:800; }
+  .pred-hist-row { display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; }
+  .pred-hist-row:last-child { border-bottom:none; }
+  .pred-hist-km  { font-family:var(--font); font-weight:700; color:var(--accent); min-width:80px; }
+  .pred-hist-desc{ flex:1; color:var(--text2); }
+  .pred-hist-sis { font-family:var(--font); font-size:10px; font-weight:700; color:var(--text3); padding:2px 6px; background:var(--bg3); border-radius:4px; white-space:nowrap; }
+  @media (max-width:640px) { .pred-grid { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -592,6 +640,9 @@
   </button>
   <button class="nav-btn" data-page="neumaticos">🛞 Neumáticos
     <span class="nav-badge" id="neumBadge" style="display:none;background:#d63b3b">0</span>
+  </button>
+  <button class="nav-btn" data-page="predictivo">🧠 Predictivo
+    <span class="nav-badge" id="predBadge" style="display:none;background:#d63b3b">0</span>
   </button>
   <button class="nav-btn" data-page="dashboard">📈 Dashboard</button>
 </nav>
@@ -881,6 +932,87 @@
       <button class="btn btn-outline" onclick="APP.closeModal('neumModal')">Cancelar</button>
       <button class="btn btn-accent" id="btnSaveNeum" onclick="APP.saveInspeccion()">💾 Guardar Inspección</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: MANTENIMIENTO PREDICTIVO
+═══════════════════════════════════════════════════ -->
+<div id="page-predictivo" class="page">
+
+  <!-- KPIs globales -->
+  <div class="kpi-bar" style="margin-bottom:20px">
+    <div class="kpi-card" style="--kpi-color:#d63b3b">
+      <div class="kpi-label">Riesgo Crítico</div>
+      <div class="kpi-value" id="pkpi-crit">—</div>
+      <div class="kpi-sub">Falla inminente (&lt;3,000 km)</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:#e07b1a">
+      <div class="kpi-label">Riesgo Alto</div>
+      <div class="kpi-value" id="pkpi-alto">—</div>
+      <div class="kpi-sub">Atención en &lt;7,000 km</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:#c9960a">
+      <div class="kpi-label">Riesgo Medio</div>
+      <div class="kpi-value" id="pkpi-med">—</div>
+      <div class="kpi-sub">Monitorear</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:#2e9e5b">
+      <div class="kpi-label">Riesgo Bajo</div>
+      <div class="kpi-value" id="pkpi-bajo">—</div>
+      <div class="kpi-sub">Sin alertas activas</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--accent)">
+      <div class="kpi-label">Total Fallas Analizadas</div>
+      <div class="kpi-value" id="pkpi-total">—</div>
+      <div class="kpi-sub">En historial de flota</div>
+    </div>
+  </div>
+
+  <!-- Info del modelo -->
+  <div style="background:linear-gradient(135deg,rgba(26,110,181,.06),rgba(46,158,91,.04));border:1px solid rgba(26,110,181,.15);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div style="font-size:24px">🧠</div>
+    <div style="flex:1;min-width:200px">
+      <div style="font-family:var(--font);font-size:13px;font-weight:700;color:var(--text);letter-spacing:.5px">Modelo Predictivo — Basado en Historial de Fallas</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px">Analiza el patrón de fallas por sistema vehicular, intervalo entre fallas y km acumulados para estimar la probabilidad de falla próxima. A mayor historial de fallas, mayor precisión del modelo.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span style="font-size:11px;background:rgba(26,110,181,.1);color:var(--accent);border:1px solid rgba(26,110,181,.2);padding:3px 10px;border-radius:12px;font-family:var(--font);font-weight:700">Motor</span>
+      <span style="font-size:11px;background:rgba(26,110,181,.1);color:var(--accent);border:1px solid rgba(26,110,181,.2);padding:3px 10px;border-radius:12px;font-family:var(--font);font-weight:700">Tren de Fuerza</span>
+      <span style="font-size:11px;background:rgba(26,110,181,.1);color:var(--accent);border:1px solid rgba(26,110,181,.2);padding:3px 10px;border-radius:12px;font-family:var(--font);font-weight:700">Eléctrico</span>
+      <span style="font-size:11px;background:rgba(26,110,181,.1);color:var(--accent);border:1px solid rgba(26,110,181,.2);padding:3px 10px;border-radius:12px;font-family:var(--font);font-weight:700">Frenos</span>
+      <span style="font-size:11px;background:rgba(26,110,181,.1);color:var(--accent);border:1px solid rgba(26,110,181,.2);padding:3px 10px;border-radius:12px;font-family:var(--font);font-weight:700">Filtros</span>
+      <span style="font-size:11px;background:rgba(26,110,181,.1);color:var(--accent);border:1px solid rgba(26,110,181,.2);padding:3px 10px;border-radius:12px;font-family:var(--font);font-weight:700">Hidráulico</span>
+      <span style="font-size:11px;background:rgba(26,110,181,.1);color:var(--accent);border:1px solid rgba(26,110,181,.2);padding:3px 10px;border-radius:12px;font-family:var(--font);font-weight:700">Neumático</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="p1-toolbar" style="margin-bottom:16px">
+    <input class="search-box" placeholder="🔍 Buscar placa..." id="predSearch" oninput="APP.filterPred()">
+    <select class="filter-select" id="predFilterRiesgo" onchange="APP.filterPred()">
+      <option value="">Todos los riesgos</option>
+      <option value="CRÍTICO">🔴 Crítico</option>
+      <option value="ALTO">🟠 Alto</option>
+      <option value="MEDIO">🟡 Medio</option>
+      <option value="BAJO">🟢 Bajo</option>
+    </select>
+  </div>
+
+  <div class="pred-grid" id="predGrid">
+    <div class="loading"><div class="spinner"></div>Analizando historial...</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL: DETALLE PREDICTIVO POR UNIDAD
+═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="predModal">
+  <div class="modal" style="max-width:600px">
+    <button class="modal-close" onclick="APP.closeModal('predModal')">×</button>
+    <div class="modal-title" id="pmTitle">BWU917</div>
+    <div class="modal-sub">🧠 Análisis Predictivo de Fallas</div>
+    <div id="pmContent"></div>
   </div>
 </div>
 
@@ -1713,6 +1845,7 @@ async function saveChecklist() {
         costoTotal:       data.costoTotal,
         repuestos:        data.repuestos,
         fotos:            [],
+        km:               data.km,
         estadoFalla:      data.estadoFalla,
         estadoPago:       data.estadoPago,
         fechaCreacion:    serverTimestamp(),
@@ -2869,11 +3002,282 @@ async function saveInspeccion() {
   }
 }
 
+// ═══════════════════════════════════════════════════
+// MÓDULO: MANTENIMIENTO PREDICTIVO
+// Motor estadístico basado en historial de fallas:
+// - Detecta sistemas vehiculares con mayor frecuencia de falla
+// - Calcula intervalo promedio entre fallas por sistema (km)
+// - Estima km restantes para próxima falla probable
+// - Clasifica riesgo: CRÍTICO(<3k) ALTO(<7k) MEDIO(<15k) BAJO(≥15k)
+// ═══════════════════════════════════════════════════
+
+// Diccionario: palabras clave → sistema vehicular
+const SISTEMAS_KEYWORDS = {
+  'MOTOR':        ['motor','aceite','refrigerante','radiador','turbo','pistón','cigüeñal','inyector','combustible','diésel','diesel','calentamiento','sobrecalent','arranque','compresi'],
+  'FILTROS':      ['filtro','adblue','urea','dpf','fap','scr','emisiones','cocada','escape'],
+  'TREN DE FUERZA':['caja','transmisión','diferencial','embrague','cardán','corona','piñón','tracción','marcha','velocidad'],
+  'FRENOS':       ['freno','frenos','pastilla','disco','tambor','abs','caliper','zapata','barra estabilizadora','presión aire','aire','compresor'],
+  'ELÉCTRICO':    ['eléctric','batería','alternador','fusible','cableado','sensor','foco','luz','luces','bujía','correa','circuito','voltaje'],
+  'HIDRÁULICO':   ['hidráulic','aceite hidráulico','bomba','cilindro','válvula','manguera','dirección','power'],
+  'NEUMÁTICO':    ['llanta','neumático','rueda','rin','pinchaz','reencauche','presión llanta','balanceo'],
+  'ESTRUCTURA':   ['chasis','carrocería','cabina','parabrisas','puerta','espejo','techo','silenciador','escape'],
+};
+
+function detectarSistema(descripcion) {
+  if (!descripcion) return 'OTROS';
+  const d = descripcion.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  for (const [sistema, keywords] of Object.entries(SISTEMAS_KEYWORDS)) {
+    if (keywords.some(k => d.includes(k.normalize('NFD').replace(/[\u0300-\u036f]/g,'')))) return sistema;
+  }
+  return 'OTROS';
+}
+
+function calcularPredictivo(placa) {
+  // Obtener todas las fallas de esta unidad
+  const fallas = allFallas.filter(f => f.placa === placa && f.descripcion);
+  if (!fallas.length) return null;
+
+  // Obtener KM actual del último checklist
+  const check = Object.values(todayChecks).find(c => c.placa === placa);
+  const kmActual = parseInt(check?.km) || 0;
+
+  // Clasificar cada falla por sistema y extraer KM
+  const fallasPorSistema = {};
+  fallas.forEach(f => {
+    const sis = detectarSistema(f.descripcion);
+    if (!fallasPorSistema[sis]) fallasPorSistema[sis] = [];
+    const km = parseInt(f.km || f.kmFalla || 0);
+    fallasPorSistema[sis].push({ km, descripcion: f.descripcion, fecha: f.fecha, gravedad: f.gravedad || 'LEVE' });
+  });
+
+  // Por cada sistema: calcular intervalo promedio entre fallas
+  const sistemaRiesgos = [];
+  for (const [sistema, items] of Object.entries(fallasPorSistema)) {
+    if (sistema === 'OTROS' && items.length < 2) continue;
+    const sorted = items.sort((a,b) => a.km - b.km);
+    let intervaloPromedio = null;
+    if (sorted.length >= 2) {
+      const intervalos = [];
+      for (let i=1; i<sorted.length; i++) {
+        const diff = sorted[i].km - sorted[i-1].km;
+        if (diff > 0) intervalos.push(diff);
+      }
+      if (intervalos.length) intervaloPromedio = Math.round(intervalos.reduce((a,b)=>a+b,0)/intervalos.length);
+    }
+    const ultimaFallaKm = sorted[sorted.length-1].km;
+    const kmDesdeUltima = kmActual > ultimaFallaKm ? kmActual - ultimaFallaKm : 0;
+    let kmRestante = null;
+    if (intervaloPromedio) kmRestante = Math.max(0, intervaloPromedio - kmDesdeUltima);
+
+    // Score de riesgo 0-100
+    let score = 0;
+    let nivelRiesgo = 'BAJO';
+    if (kmRestante !== null) {
+      if (kmRestante < 3000)       { score = Math.round(90 + (3000-kmRestante)/300); nivelRiesgo = 'CRÍTICO'; }
+      else if (kmRestante < 7000)  { score = Math.round(65 + (7000-kmRestante)/133); nivelRiesgo = 'ALTO';    }
+      else if (kmRestante < 15000) { score = Math.round(30 + (15000-kmRestante)/320);nivelRiesgo = 'MEDIO';   }
+      else                         { score = Math.round(10 + Math.min(20, items.length*3)); nivelRiesgo = 'BAJO'; }
+    } else {
+      // Sin suficiente historial, estimar por frecuencia
+      score = Math.min(40, items.length * 8);
+      nivelRiesgo = score >= 30 ? 'MEDIO' : 'BAJO';
+    }
+    score = Math.min(99, score);
+
+    sistemaRiesgos.push({
+      sistema, items, score, nivelRiesgo, intervaloPromedio, kmRestante, ultimaFallaKm, kmDesdeUltima
+    });
+  }
+
+  if (!sistemaRiesgos.length) return null;
+
+  // Riesgo global = el peor sistema
+  sistemaRiesgos.sort((a,b) => b.score - a.score);
+  const peor = sistemaRiesgos[0];
+  const nivelGlobal = peor.nivelRiesgo;
+  const scoreGlobal = peor.score;
+
+  return { placa, fallas: fallas.length, sistemaRiesgos, nivelGlobal, scoreGlobal, kmActual };
+}
+
+function nivelColor(nivel) {
+  if (nivel==='CRÍTICO') return '#d63b3b';
+  if (nivel==='ALTO')    return '#e07b1a';
+  if (nivel==='MEDIO')   return '#c9960a';
+  return '#2e9e5b';
+}
+function nivelClass(nivel) {
+  if (nivel==='CRÍTICO') return 'critico';
+  if (nivel==='ALTO')    return 'alto';
+  if (nivel==='MEDIO')   return 'medio';
+  return 'bajo';
+}
+function badgeClass(nivel) {
+  if (nivel==='CRÍTICO') return 'badge-critico';
+  if (nivel==='ALTO')    return 'badge-alto';
+  if (nivel==='MEDIO')   return 'badge-medio';
+  if (nivel==='BAJO')    return 'badge-bajo';
+  return 'badge-sin';
+}
+
+function filterPred() { renderPredGrid(); }
+
+function renderPredGrid() {
+  const grid = document.getElementById('predGrid');
+  if (!grid) return;
+  const search = (document.getElementById('predSearch')?.value||'').toLowerCase();
+  const filtRiesgo = document.getElementById('predFilterRiesgo')?.value||'';
+
+  const units = allUnits.filter(u => {
+    if (search && !u.placa.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  // Calcular todos los predictivos
+  const results = units.map(u => ({ unit:u, pred:calcularPredictivo(u.placa) }))
+    .filter(r => {
+      if (!filtRiesgo) return true;
+      return r.pred?.nivelGlobal === filtRiesgo;
+    })
+    .sort((a,b) => (b.pred?.scoreGlobal||0) - (a.pred?.scoreGlobal||0));
+
+  // Actualizar KPIs
+  const all = allUnits.map(u => calcularPredictivo(u.placa));
+  const cnt = nivel => all.filter(p => p?.nivelGlobal===nivel).length;
+  const badge = document.getElementById('predBadge');
+  const crit = cnt('CRÍTICO');
+  document.getElementById('pkpi-crit').textContent = crit;
+  document.getElementById('pkpi-alto').textContent = cnt('ALTO');
+  document.getElementById('pkpi-med').textContent  = cnt('MEDIO');
+  document.getElementById('pkpi-bajo').textContent = cnt('BAJO');
+  document.getElementById('pkpi-total').textContent= allFallas.length;
+  if (badge) { badge.textContent=crit; badge.style.display=crit>0?'':'none'; }
+
+  if (!results.length) { grid.innerHTML=`<div class="empty-state"><p>No hay datos suficientes aún. Registra más fallas para activar el motor predictivo.</p></div>`; return; }
+
+  grid.innerHTML = results.map(({unit:u, pred}) => {
+    if (!pred) return `
+      <div class="pred-card sin-datos">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div><div class="pred-placa">${u.placa}</div><div class="pred-tipo">${u.tipo}</div></div>
+        </div>
+        <span class="pred-riesgo-badge badge-sin">Sin Historial</span>
+        <div style="font-size:12px;color:var(--text3);margin-top:8px">Registra fallas para activar el análisis predictivo.</div>
+      </div>`;
+
+    const nc = nivelClass(pred.nivelGlobal);
+    const color = nivelColor(pred.nivelGlobal);
+    const peor = pred.sistemaRiesgos[0];
+
+    // Alerta km
+    let alertHtml = '';
+    if (peor.kmRestante !== null) {
+      const alertClass = pred.nivelGlobal==='CRÍTICO'?'rojo':pred.nivelGlobal==='ALTO'?'naranja':'verde';
+      const emojiAlert = pred.nivelGlobal==='CRÍTICO'?'⚠️':pred.nivelGlobal==='ALTO'?'🔶':'✅';
+      alertHtml = `<div class="pred-km-alert ${alertClass}">
+        ${emojiAlert} <strong>${peor.sistema}</strong>: falla estimada en ~<strong>${(peor.kmRestante).toLocaleString()} km</strong>
+        ${peor.intervaloPromedio?`<br><span style="font-size:10px;opacity:.8">Intervalo histórico: ${peor.intervaloPromedio.toLocaleString()} km entre fallas</span>`:''}
+      </div>`;
+    }
+
+    // Barras de sistemas
+    const sistemasHtml = pred.sistemaRiesgos.slice(0,4).map(s => `
+      <div class="pred-sistema-row">
+        <div class="pred-sistema-name">${s.sistema}</div>
+        <div class="pred-bar-wrap"><div class="pred-bar ${nivelClass(s.nivelRiesgo)}" style="width:${s.score}%"></div></div>
+        <div class="pred-pct" style="color:${nivelColor(s.nivelRiesgo)}">${s.score}</div>
+      </div>`).join('');
+
+    return `<div class="pred-card riesgo-${nc}" onclick="APP.openPredModal('${u.placa}')" style="cursor:pointer">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+        <div><div class="pred-placa">${u.placa}</div><div class="pred-tipo">${u.tipo}</div></div>
+        <div style="text-align:right">
+          <div style="font-family:var(--font);font-size:36px;font-weight:900;color:${color};line-height:1">${pred.scoreGlobal}</div>
+          <div style="font-size:9px;color:var(--text2);letter-spacing:1px">RIESGO</div>
+        </div>
+      </div>
+      <span class="pred-riesgo-badge ${badgeClass(pred.nivelGlobal)}">${pred.nivelGlobal}</span>
+      <div class="pred-sistemas">${sistemasHtml}</div>
+      ${alertHtml}
+      <div style="font-size:10px;color:var(--text3);margin-top:8px;text-align:right">${pred.fallas} falla${pred.fallas!==1?'s':''} en historial · Click para detalle</div>
+    </div>`;
+  }).join('');
+}
+
+function openPredModal(placa) {
+  const pred = calcularPredictivo(placa);
+  const unit = allUnits.find(u => u.placa===placa);
+  document.getElementById('pmTitle').textContent = placa;
+  const container = document.getElementById('pmContent');
+
+  if (!pred) {
+    container.innerHTML = `<div class="empty-state"><p>Sin fallas registradas para analizar.</p></div>`;
+    document.getElementById('predModal').classList.add('open');
+    return;
+  }
+
+  const sistemasDetalle = pred.sistemaRiesgos.map(s => {
+    const color = nivelColor(s.nivelRiesgo);
+    const nc    = nivelClass(s.nivelRiesgo);
+    const histRows = s.items.slice(-5).reverse().map(item => `
+      <div class="pred-hist-row">
+        <div class="pred-hist-km">${item.km?item.km.toLocaleString()+' km':'Sin km'}</div>
+        <div class="pred-hist-desc">${item.descripcion||'—'}</div>
+        <div class="pred-hist-sis">${item.gravedad||'—'}</div>
+      </div>`).join('');
+
+    return `<div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+          <strong style="font-family:var(--font);font-size:15px;font-weight:800;color:var(--text)">${s.sistema}</strong>
+          <span style="font-size:11px;font-family:var(--font);font-weight:700;color:${color};background:${color}18;border:1px solid ${color}30;padding:2px 8px;border-radius:12px">${s.nivelRiesgo}</span>
+        </div>
+        <div style="font-family:var(--font);font-size:28px;font-weight:900;color:${color}">${s.score}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-family:var(--font);font-size:18px;font-weight:900;color:var(--accent)">${s.items.length}</div>
+          <div style="font-size:10px;color:var(--text2);letter-spacing:1px">FALLAS</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-family:var(--font);font-size:18px;font-weight:900;color:var(--text)">${s.intervaloPromedio?s.intervaloPromedio.toLocaleString()+'km':'N/A'}</div>
+          <div style="font-size:10px;color:var(--text2);letter-spacing:1px">INTERVALO PROM.</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-family:var(--font);font-size:18px;font-weight:900;color:${color}">${s.kmRestante!==null?s.kmRestante.toLocaleString()+'km':'N/A'}</div>
+          <div style="font-size:10px;color:var(--text2);letter-spacing:1px">KM RESTANTES</div>
+        </div>
+      </div>
+      <div style="font-family:var(--font);font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Últimas fallas registradas:</div>
+      <div style="background:var(--bg3);border-radius:8px;padding:4px 12px">${histRows}</div>
+    </div>`;
+  }).join('<hr style="border:none;border-top:1px solid var(--border);margin:4px 0 20px">');
+
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:13px;color:var(--text2)">${unit?.tipo||'—'} · ${unit?.ubicacion||'—'}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px">${pred.fallas} fallas en historial · KM actual: ${pred.kmActual?pred.kmActual.toLocaleString():'Sin registro'}</div>
+      </div>
+      <div style="margin-left:auto;text-align:center">
+        <div style="font-family:var(--font);font-size:48px;font-weight:900;color:${nivelColor(pred.nivelGlobal)};line-height:1">${pred.scoreGlobal}</div>
+        <span class="pred-riesgo-badge ${badgeClass(pred.nivelGlobal)}" style="margin:4px 0 0">${pred.nivelGlobal}</span>
+      </div>
+    </div>
+    ${sistemasDetalle}
+    <div style="background:rgba(26,110,181,.05);border:1px solid rgba(26,110,181,.15);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--text2);margin-top:8px">
+      💡 <strong>Cómo leer este análisis:</strong> El score (0-99) indica la probabilidad estimada de falla próxima basada en la frecuencia histórica de incidencias por sistema. Los km restantes se calculan como: intervalo promedio entre fallas − km transcurridos desde la última falla del mismo sistema.
+    </div>`;
+  document.getElementById('predModal').classList.add('open');
+}
+
 // ─── EXPOSE AS window.APP ───
 window.APP = {
   filterFleet, filterReports, filterHUnits,
   filterPagos, marcarPagado, marcarPendiente,
   filterNeum, openInspeccion, nmUpdate, saveInspeccion,
+  filterPred, openPredModal,
   openChecklist, openAddUnit, openFallaModal,
   selectEstado, selectGrav, selectTipo, selectPago,
   addRepuesto, removeRepuesto, updateRepuesto,
@@ -2896,9 +3300,10 @@ document.querySelector('nav').addEventListener('click', e => {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`page-${page}`).classList.add('active');
   btn.classList.add('active');
-  if (page === 'dashboard')   updateDashboard();
-  if (page === 'pagos')       renderPagos();
-  if (page === 'neumaticos')  { renderNeumGrid(); updateNeumKPIs(); }
+  if (page === 'dashboard')  updateDashboard();
+  if (page === 'pagos')      renderPagos();
+  if (page === 'neumaticos') { renderNeumGrid(); updateNeumKPIs(); }
+  if (page === 'predictivo') renderPredGrid();
 });
 
 // Modal overlay click to close
