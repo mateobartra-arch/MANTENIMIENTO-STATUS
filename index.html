@@ -608,6 +608,56 @@
   .pred-hist-desc{ flex:1; color:var(--text2); }
   .pred-hist-sis { font-family:var(--font); font-size:10px; font-weight:700; color:var(--text3); padding:2px 6px; background:var(--bg3); border-radius:4px; white-space:nowrap; }
   @media (max-width:640px) { .pred-grid { grid-template-columns:1fr; } }
+
+  /* ══════════════════════════════════════════
+     MANTENIMIENTO PREVENTIVO
+  ══════════════════════════════════════════ */
+  .prev-unit-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .prev-tab { padding:8px 18px; border-radius:8px; border:1px solid var(--border2); background:var(--card); color:var(--text2); font-family:var(--font); font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; letter-spacing:.5px; }
+  .prev-tab:hover { border-color:var(--accent); color:var(--accent); }
+  .prev-tab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .prev-tab .prev-tab-badge { display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; border-radius:8px; background:rgba(255,255,255,.3); font-size:9px; font-weight:900; margin-left:5px; padding:0 3px; }
+
+  .prev-table-wrap { overflow-x:auto; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow); }
+  .prev-table { width:100%; border-collapse:collapse; font-size:12px; background:var(--card); }
+  .prev-table th { padding:10px 12px; font-family:var(--font); font-size:10px; font-weight:700; color:var(--text2); letter-spacing:1.5px; text-transform:uppercase; background:var(--bg3); border-bottom:1px solid var(--border); text-align:center; white-space:nowrap; }
+  .prev-table th.item-col { text-align:left; min-width:180px; }
+  .prev-table td { padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:middle; text-align:center; white-space:nowrap; }
+  .prev-table td.item-name { text-align:left; font-size:12px; color:var(--text); font-weight:500; }
+  .prev-table td.item-qty { color:var(--text2); font-size:11px; }
+  .prev-table tr:last-child td { border-bottom:none; }
+  .prev-table tr:hover td { background:rgba(26,110,181,.03); }
+
+  /* Estado chips */
+  .prev-estado { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; font-size:13px; font-weight:700; transition:all .2s; cursor:default; }
+  .prev-estado.hecho    { background:rgba(46,158,91,.15);  color:#2e9e5b; border:1.5px solid rgba(46,158,91,.4); }
+  .prev-estado.proximo  { background:rgba(201,150,10,.15); color:#c9960a; border:1.5px solid rgba(201,150,10,.4); animation:pulse-prev 2s infinite; }
+  .prev-estado.pendiente{ background:rgba(154,176,200,.08); color:var(--text3); border:1.5px solid var(--border2); }
+  .prev-estado.na       { color:var(--border2); border:none; font-size:11px; }
+  @keyframes pulse-prev { 0%,100%{box-shadow:0 0 0 0 rgba(201,150,10,.3)} 60%{box-shadow:0 0 0 5px rgba(201,150,10,.0)} }
+
+  /* Registro manual */
+  .prev-reg-btn { background:none; border:1px solid var(--border2); border-radius:6px; padding:3px 8px; font-size:11px; color:var(--text2); cursor:pointer; transition:all .2s; }
+  .prev-reg-btn:hover { border-color:var(--green); color:var(--green); }
+  .prev-reg-btn.registrado { background:rgba(46,158,91,.08); border-color:rgba(46,158,91,.3); color:#2e9e5b; }
+
+  /* Alerta causal */
+  .causal-alert { border-radius:10px; padding:12px 16px; margin-bottom:12px; border:1px solid; display:flex; gap:10px; align-items:flex-start; }
+  .causal-alert.danger { background:rgba(214,59,59,.06); border-color:rgba(214,59,59,.25); }
+  .causal-alert.warning { background:rgba(224,123,26,.06); border-color:rgba(224,123,26,.25); }
+  .causal-alert.info    { background:rgba(26,110,181,.06); border-color:rgba(26,110,181,.2); }
+  .causal-alert-icon { font-size:20px; flex-shrink:0; }
+  .causal-alert-body { flex:1; font-size:12px; color:var(--text2); line-height:1.5; }
+  .causal-alert-body strong { color:var(--text); font-weight:700; }
+
+  /* Costo bar */
+  .prev-costo-row { background:rgba(26,110,181,.04); }
+  .prev-costo-row td { color:var(--accent); font-family:var(--font); font-weight:700; font-size:12px; }
+
+  @media (max-width:640px) {
+    .prev-unit-tabs { gap:6px; }
+    .prev-tab { padding:6px 12px; font-size:12px; }
+  }
 </style>
 </head>
 <body>
@@ -643,6 +693,9 @@
   </button>
   <button class="nav-btn" data-page="predictivo">🧠 Predictivo
     <span class="nav-badge" id="predBadge" style="display:none;background:#d63b3b">0</span>
+  </button>
+  <button class="nav-btn" data-page="preventivo">🔧 Preventivo
+    <span class="nav-badge" id="prevBadge" style="display:none;background:#e07b1a">0</span>
   </button>
   <button class="nav-btn" data-page="dashboard">📈 Dashboard</button>
 </nav>
@@ -1013,6 +1066,95 @@
     <div class="modal-title" id="pmTitle">BWU917</div>
     <div class="modal-sub">🧠 Análisis Predictivo de Fallas</div>
     <div id="pmContent"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: MANTENIMIENTO PREVENTIVO
+═══════════════════════════════════════════════════ -->
+<div id="page-preventivo" class="page">
+
+  <!-- KPIs -->
+  <div class="kpi-bar" style="margin-bottom:18px">
+    <div class="kpi-card" style="--kpi-color:var(--orange)">
+      <div class="kpi-label">Próximos MP</div>
+      <div class="kpi-value" id="pvkpi-prox">—</div>
+      <div class="kpi-sub">Servicios ≤15,000 km</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--green)">
+      <div class="kpi-label">Realizados</div>
+      <div class="kpi-value" id="pvkpi-ok">—</div>
+      <div class="kpi-sub">Ítems completados</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--red)">
+      <div class="kpi-label">Alertas Causales</div>
+      <div class="kpi-value" id="pvkpi-causal">—</div>
+      <div class="kpi-sub">MP reciente + falla posterior</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--accent)">
+      <div class="kpi-label">Costo próx. MP (USD)</div>
+      <div class="kpi-value" id="pvkpi-costo" style="font-size:22px;line-height:1.3">—</div>
+      <div class="kpi-sub">Estimado sin IGV</div>
+    </div>
+  </div>
+
+  <!-- Info del módulo -->
+  <div style="background:linear-gradient(135deg,rgba(46,158,91,.05),rgba(26,110,181,.04));border:1px solid rgba(46,158,91,.2);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text2);display:flex;gap:12px;align-items:center">
+    <div style="font-size:20px">🔧</div>
+    <div><strong style="color:var(--text)">Plan de Mantenimiento Preventivo — MISAGI S.A.C.</strong><br>
+    Basado en el plan oficial por unidad. ✅ = Realizado · 🔶 = Próximo (≤15k km) · ⭕ = Pendiente · — = No aplica.<br>
+    <strong style="color:#d63b3b">⚠️ Alerta Causal:</strong> si un ítem fue cambiado recientemente y la misma unidad reporta una falla relacionada, aparece una alerta de análisis causa-efecto.</div>
+  </div>
+
+  <!-- Selector de unidad por tabs -->
+  <div class="prev-unit-tabs" id="prevTabs"></div>
+
+  <!-- Alertas causales (dinámicas) -->
+  <div id="prevCausales"></div>
+
+  <!-- Tabla del plan -->
+  <div class="prev-table-wrap">
+    <table class="prev-table">
+      <thead id="prevTableHead"></thead>
+      <tbody id="prevTableBody">
+        <div class="loading"><div class="spinner"></div>Cargando plan...</div>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL: REGISTRAR MANTENIMIENTO PREVENTIVO
+═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="prevRegModal">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="APP.closeModal('prevRegModal')">×</button>
+    <div class="modal-title" id="prm-title">Registrar MP</div>
+    <div class="modal-sub" id="prm-sub">Confirmar mantenimiento realizado</div>
+    <div class="form-group">
+      <div class="form-label">Fecha de Realización</div>
+      <input class="form-input" type="date" id="prm-fecha">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Kilometraje al momento del MP</div>
+      <input class="form-input" type="number" id="prm-km" placeholder="Ej: 60000">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Taller / Técnico</div>
+      <input class="form-input" id="prm-taller" placeholder="Nombre del taller o técnico">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Costo Real (USD)</div>
+      <input class="form-input" type="number" id="prm-costo" placeholder="0.00">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Observaciones</div>
+      <textarea class="form-textarea" id="prm-obs" placeholder="Notas del mantenimiento..." style="min-height:56px"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="APP.closeModal('prevRegModal')">Cancelar</button>
+      <button class="btn btn-green" id="btnSavePrev" onclick="APP.savePrevReg()">✅ Confirmar Realizado</button>
+    </div>
   </div>
 </div>
 
@@ -1421,6 +1563,7 @@ async function init() {
   listenFallas();
   listenTodayChecks();
   listenInspecciones();
+  listenPrevRegs();
 }
 
 async function seedUnitsIfEmpty() {
@@ -3269,7 +3412,297 @@ function openPredModal(placa) {
     <div style="background:rgba(26,110,181,.05);border:1px solid rgba(26,110,181,.15);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--text2);margin-top:8px">
       💡 <strong>Cómo leer este análisis:</strong> El score (0-99) indica la probabilidad estimada de falla próxima basada en la frecuencia histórica de incidencias por sistema. Los km restantes se calculan como: intervalo promedio entre fallas − km transcurridos desde la última falla del mismo sistema.
     </div>`;
+
+  // Inyectar alertas causales del preventivo si existen
+  const causalesPlaca = buildCausales().filter(a =>
+    (a.placa||'').replace(/-/g,'') === placa.replace(/-/g,'')
+  );
+  if (causalesPlaca.length) {
+    const causHtml = `<div style="margin-bottom:16px">
+      <div style="font-family:var(--font);font-size:11px;font-weight:700;color:#d63b3b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">🚨 Alertas Causales con Mantenimiento Preventivo</div>
+      ${causalesPlaca.map(a => `<div class="causal-alert danger" style="margin-bottom:8px">
+        <div class="causal-alert-icon">⚡</div>
+        <div class="causal-alert-body" style="font-size:11px">
+          <strong>${a.itemNombre}</strong> cambiado en MP del <strong>${a.fechaMP}</strong> (km ${(a.kmMP).toLocaleString()})<br>
+          <strong>${a.dias} días después</strong> falla en sistema ${a.sistema}: <em>"${(a.falla.descripcion||'').substring(0,80)}"</em>
+        </div>
+      </div>`).join('')}
+    </div>`;
+    container.innerHTML = causHtml + container.innerHTML;
+  }
+
   document.getElementById('predModal').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════
+// MÓDULO: MANTENIMIENTO PREVENTIVO
+// ═══════════════════════════════════════════════════
+
+// ── DATOS DEL PLAN PREVENTIVO (extraídos del Excel) ──
+const PLAN_PREVENTIVO = {"CFF841":{"placa":"CFF-841","intervals":[{"col":2,"label":"5k km ASENT","km":5000},{"col":3,"label":"30k km LUB","km":30000},{"col":4,"label":"60k km MP1","km":60000},{"col":5,"label":"90k km LUB","km":90000},{"col":6,"label":"120k km MP2","km":120000},{"col":7,"label":"150k km LUB","km":150000},{"col":8,"label":"180k km MP1","km":180000},{"col":9,"label":"210k km LUB","km":210000},{"col":10,"label":"240k km MP3","km":240000}],"items":[{"nombre":"ACEITE DE MOTOR","qty":"42L","estados":["✓","✓","◉","○","○","○","○","○","○"]},{"nombre":"ACEITE DE TRANSMISION AMT","qty":"9L","estados":["—","—","—","—","—","—","—","—","○"]},{"nombre":"ACEITE DE RETARDER","qty":"7L","estados":["—","✓","◉","○","○","○","○","○","○"]},{"nombre":"ACEITE DE CORONA","qty":"40L","estados":["✓","—","◉","—","○","—","○","—","○"]},{"nombre":"ACEITE DE DIRECCIÓN","qty":"5L","estados":["✓","—","◉","—","○","—","○","—","○"]},{"nombre":"FILTRO DE ACEITE","qty":"1","estados":["✓","✓","◉","○","○","○","○","○","○"]},{"nombre":"FILTRO DE AIRE COMPLETO","qty":"1","estados":["—","✓","◉","○","○","○","○","○","○"]},{"nombre":"FILTRO PETRÓLEO PRINCIPAL","qty":"1","estados":["—","✓","◉","○","○","○","○","○","○"]},{"nombre":"FILTRO PETRÓLEO SEPARADOR","qty":"1","estados":["—","✓","◉","○","○","○","○","○","○"]},{"nombre":"FILTRO DE DIRECCIÓN","qty":"1","estados":["✓","—","◉","—","○","—","○","—","○"]},{"nombre":"FILTRO SECUN. DE PETRÓLEO","qty":"1","estados":["—","✓","◉","○","○","○","○","○","○"]},{"nombre":"FILTRO DE RETARDER","qty":"1","estados":["—","✓","◉","○","○","○","○","○","○"]},{"nombre":"FILTRO DE UREA","qty":"1","estados":["—","—","◉","—","○","—","○","—","○"]},{"nombre":"FILTRO SECADOR DE AIRE","qty":"1","estados":["—","—","—","—","○","—","—","—","○"]},{"nombre":"FILTRO SEPARADOR DE UREA","qty":"1","estados":["—","—","◉","—","○","—","○","—","○"]},{"nombre":"FILTRO DE A/C","qty":"1","estados":["—","—","◉","—","○","—","○","—","○"]},{"nombre":"ARANDELA","qty":"1","estados":["✓","—","◉","○","○","○","○","○","○"]},{"nombre":"GRASA","qty":"35","estados":["✓","✓","◉","○","○","○","○","○","○"]},{"nombre":"REFRIGERANTE","qty":"40L","estados":["—","—","—","—","—","—","—","—","○"]},{"nombre":"COSTO EST. (USD)","qty":"$","estados":["822.5","886.73","1201.72","887.89","1392.33","887.89","1201.72","887.89","1890.5"]}]},"CFG704":{"placa":"CFG-704","intervals":[{"col":2,"label":"5k km ASENT","km":5000},{"col":3,"label":"30k km LUB","km":30000},{"col":4,"label":"60k km MP1","km":60000},{"col":5,"label":"90k km LUB","km":90000},{"col":6,"label":"120k km MP2","km":120000},{"col":7,"label":"150k km LUB","km":150000},{"col":8,"label":"180k km MP1","km":180000},{"col":9,"label":"210k km LUB","km":210000},{"col":10,"label":"240k km MP3","km":240000}],"items":[{"nombre":"ACEITE DE MOTOR","qty":"42L","estados":["✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"ACEITE DE TRANSMISION AMT","qty":"9L","estados":["—","—","—","—","—","—","—","—","○"]},{"nombre":"ACEITE DE RETARDER","qty":"7L","estados":["—","✓","✓","○","○","○","○","○","○"]},{"nombre":"ACEITE DE CORONA","qty":"40L","estados":["✓","—","✓","—","○","—","○","—","○"]},{"nombre":"ACEITE DE DIRECCIÓN","qty":"5L","estados":["✓","—","✓","—","○","—","○","—","○"]},{"nombre":"FILTRO DE ACEITE","qty":"1","estados":["✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTRO DE AIRE COMPLETO","qty":"1","estados":["—","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTRO PETRÓLEO PRINCIPAL","qty":"1","estados":["—","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTRO PETRÓLEO SEPARADOR","qty":"1","estados":["—","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTRO DE DIRECCIÓN","qty":"1","estados":["✓","—","✓","—","○","—","○","—","○"]},{"nombre":"FILTRO SECUN. DE PETRÓLEO","qty":"1","estados":["—","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTRO DE RETARDER","qty":"1","estados":["—","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTRO DE UREA","qty":"1","estados":["—","—","✓","—","○","—","○","—","○"]},{"nombre":"FILTRO SECADOR DE AIRE","qty":"1","estados":["—","—","—","—","○","—","—","—","○"]},{"nombre":"FILTRO SEPARADOR DE UREA","qty":"1","estados":["—","—","✓","—","○","—","○","—","○"]},{"nombre":"FILTRO DE A/C","qty":"1","estados":["—","—","✓","—","○","—","○","—","○"]},{"nombre":"ARANDELA","qty":"1","estados":["✓","—","✓","○","○","○","○","○","○"]},{"nombre":"GRASA","qty":"35","estados":["✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"REFRIGERANTE","qty":"40L","estados":["—","—","—","—","—","—","—","—","○"]},{"nombre":"COSTO EST. (USD)","qty":"$","estados":["822.5","886.73","1201.72","887.89","1392.33","887.89","1201.72","887.89","1890.5"]}]},"CJS724":{"placa":"CJS-724","intervals":[{"label":"10k INIC","km":10000},{"label":"40k A","km":40000},{"label":"70k B","km":70000},{"label":"100k A","km":100000},{"label":"130k C","km":130000},{"label":"160k A","km":160000},{"label":"190k B","km":190000},{"label":"220k A","km":220000},{"label":"250k C","km":250000},{"label":"280k A","km":280000},{"label":"310k B","km":310000},{"label":"340k A","km":340000},{"label":"370k C","km":370000}],"items":[{"nombre":"ACEITE DE MOTOR 15W40 CK-4","qty":"9L","estados":["◉","○","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO DE ACEITE","qty":"1","estados":["◉","○","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO DE COMBUSTIBLE","qty":"1","estados":["◉","○","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTROS SEP. AGUA/COMBUSTIBLE","qty":"1","estados":["◉","○","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO SEPARADOR COMBUSTIBLE","qty":"1","estados":["◉","○","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"GRASA EP-2 MOLY","qty":"2kg","estados":["◉","○","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"ACEITE DIFERENCIAL 85W140","qty":"12L","estados":["◉","—","—","—","○","—","—","—","○","—","—","—","○"]},{"nombre":"FILTRO CAJA","qty":"6L","estados":["◉","—","—","—","—","—","—","—","○","—","—","—","—"]},{"nombre":"FILTRO RETARDADOR","qty":"1","estados":["—","○","—","○","—","○","—","○","—","○","—","○","—"]},{"nombre":"FILTRO ACEITE DIRECCIÓN","qty":"1","estados":["◉","○","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO BOMBA UREA","qty":"1","estados":["◉","—","○","—","○","—","○","—","○","—","○","—","○"]},{"nombre":"KIT FILTROS AIRE","qty":"1","estados":["◉","○","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"REFRIGERANTE","qty":"10L","estados":["—","—","—","—","—","—","—","—","—","—","—","—","○"]},{"nombre":"FILTRO SECADOR RF","qty":"1","estados":["◉","—","—","—","○","—","—","—","○","—","—","—","○"]},{"nombre":"COSTO EST. (USD)","qty":"$","estados":["861.33","548.99","901.51","548.99","1530.02","548.99","901.51","548.99","1603.98","548.99","771.31","548.99","1530.02"]}]},"CDI829":{"placa":"CDI-829","intervals":[{"label":"10k INIC","km":10000},{"label":"40k A","km":40000},{"label":"70k B","km":70000},{"label":"100k A","km":100000},{"label":"130k C","km":130000},{"label":"160k A","km":160000},{"label":"190k B","km":190000},{"label":"220k A","km":220000},{"label":"250k C","km":250000},{"label":"280k A","km":280000},{"label":"310k B","km":310000},{"label":"340k A","km":340000},{"label":"370k C","km":370000}],"items":[{"nombre":"ACEITE DE MOTOR 15W40 CK-4","qty":"9L","estados":["✓","✓","◉","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO DE ACEITE","qty":"1","estados":["✓","✓","◉","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO DE COMBUSTIBLE","qty":"1","estados":["✓","✓","◉","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTROS SEP. AGUA/COMBUSTIBLE","qty":"1","estados":["✓","✓","◉","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO SEPARADOR COMBUSTIBLE","qty":"1","estados":["✓","✓","◉","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"GRASA EP-2 MOLY","qty":"2kg","estados":["✓","✓","◉","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"ACEITE DIFERENCIAL 85W140","qty":"12L","estados":["✓","—","—","—","○","—","—","—","○","—","—","—","○"]},{"nombre":"FILTRO CAJA","qty":"6L","estados":["✓","—","—","—","—","—","—","—","○","—","—","—","—"]},{"nombre":"FILTRO RETARDADOR","qty":"1","estados":["—","✓","—","○","—","○","—","○","—","○","—","○","—"]},{"nombre":"FILTRO ACEITE DIRECCIÓN","qty":"1","estados":["✓","✓","◉","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO BOMBA UREA","qty":"1","estados":["✓","—","◉","—","○","—","○","—","○","—","○","—","○"]},{"nombre":"KIT FILTROS AIRE","qty":"1","estados":["✓","✓","◉","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"REFRIGERANTE","qty":"10L","estados":["—","—","—","—","—","—","—","—","—","—","—","—","○"]},{"nombre":"FILTRO SECADOR RF","qty":"1","estados":["✓","—","—","—","○","—","—","—","○","—","—","—","○"]},{"nombre":"COSTO EST. (USD)","qty":"$","estados":["861.33","548.99","901.51","548.99","1530.02","548.99","901.51","548.99","1603.98","548.99","771.31","548.99","1530.02"]}]},"CDJ712":{"placa":"CDJ-712","intervals":[{"label":"10k INIC","km":10000},{"label":"40k A","km":40000},{"label":"70k B","km":70000},{"label":"100k A","km":100000},{"label":"130k C","km":130000},{"label":"160k A","km":160000},{"label":"190k B","km":190000},{"label":"220k A","km":220000},{"label":"250k C","km":250000},{"label":"280k A","km":280000},{"label":"310k B","km":310000},{"label":"340k A","km":340000},{"label":"370k C","km":370000}],"items":[{"nombre":"ACEITE DE MOTOR 15W40 CK-4","qty":"9L","estados":["✓","✓","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO DE ACEITE","qty":"1","estados":["✓","✓","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO DE COMBUSTIBLE","qty":"1","estados":["✓","✓","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTROS SEP. AGUA/COMBUSTIBLE","qty":"1","estados":["✓","✓","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO SEPARADOR COMBUSTIBLE","qty":"1","estados":["✓","✓","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"GRASA EP-2 MOLY","qty":"2kg","estados":["✓","✓","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"ACEITE DIFERENCIAL 85W140","qty":"12L","estados":["✓","—","—","—","○","—","—","—","○","—","—","—","○"]},{"nombre":"FILTRO CAJA","qty":"6L","estados":["✓","—","—","—","—","—","—","—","○","—","—","—","—"]},{"nombre":"FILTRO RETARDADOR","qty":"1","estados":["—","✓","—","○","—","○","—","○","—","○","—","○","—"]},{"nombre":"FILTRO ACEITE DIRECCIÓN","qty":"1","estados":["✓","✓","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"FILTRO BOMBA UREA","qty":"1","estados":["✓","—","○","—","○","—","○","—","○","—","○","—","○"]},{"nombre":"KIT FILTROS AIRE","qty":"1","estados":["✓","✓","○","○","○","○","○","○","○","○","○","○","○"]},{"nombre":"REFRIGERANTE","qty":"10L","estados":["—","—","—","—","—","—","—","—","—","—","—","—","○"]},{"nombre":"FILTRO SECADOR RF","qty":"1","estados":["✓","—","—","—","○","—","—","—","○","—","—","—","○"]},{"nombre":"COSTO EST. (USD)","qty":"$","estados":["861.33","548.99","901.51","548.99","1530.02","548.99","901.51","548.99","1603.98","548.99","771.31","548.99","1530.02"]}]},"BWW797":{"placa":"BWW-797","intervals":[{"label":"10k INIC","km":10000},{"label":"40k A","km":40000},{"label":"70k B","km":70000},{"label":"100k A","km":100000},{"label":"130k C","km":130000},{"label":"160k A","km":160000},{"label":"190k B","km":190000},{"label":"220k A","km":220000},{"label":"250k C","km":250000},{"label":"280k A","km":280000},{"label":"310k B","km":310000},{"label":"340k A","km":340000},{"label":"370k C","km":370000}],"items":[{"nombre":"ACEITE DE MOTOR 15W40 CK-4","qty":"9L","estados":["✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTRO DE ACEITE","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTRO DE COMBUSTIBLE","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTROS SEP. AGUA/COMBUSTIBLE","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTRO SEPARADOR COMBUSTIBLE","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"GRASA EP-2 MOLY","qty":"2kg","estados":["✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"ACEITE DIFERENCIAL 85W140","qty":"12L","estados":["✓","—","—","—","✓","—","—","—","○","—","—","—","○"]},{"nombre":"FILTRO CAJA","qty":"6L","estados":["✓","—","—","—","—","—","—","—","○","—","—","—","—"]},{"nombre":"FILTRO RETARDADOR","qty":"1","estados":["—","✓","—","✓","—","✓","—","○","—","○","—","○","—"]},{"nombre":"FILTRO ACEITE DIRECCIÓN","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"FILTRO BOMBA UREA","qty":"1","estados":["✓","—","✓","—","✓","—","✓","—","○","—","○","—","○"]},{"nombre":"KIT FILTROS AIRE","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○","○"]},{"nombre":"REFRIGERANTE","qty":"10L","estados":["—","—","—","—","—","—","—","—","—","—","—","—","○"]},{"nombre":"FILTRO SECADOR RF","qty":"1","estados":["✓","—","—","—","✓","—","—","—","○","—","—","—","○"]},{"nombre":"COSTO EST. (USD)","qty":"$","estados":["861.33","548.99","901.51","548.99","1530.02","548.99","901.51","548.99","1603.98","548.99","771.31","548.99","1530.02"]}]},"BWU917":{"placa":"BWU-917","intervals":[{"label":"10k INIC","km":10000},{"label":"40k A","km":40000},{"label":"70k B","km":70000},{"label":"100k A","km":100000},{"label":"130k C","km":130000},{"label":"160k A","km":160000},{"label":"190k B","km":190000},{"label":"220k A","km":220000},{"label":"250k C","km":250000},{"label":"280k A","km":280000},{"label":"310k B","km":310000},{"label":"340k A","km":340000},{"label":"370k C","km":370000}],"items":[{"nombre":"ACEITE DE MOTOR 15W40 CK-4","qty":"9L","estados":["✓","✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○"]},{"nombre":"FILTRO DE ACEITE","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○"]},{"nombre":"FILTRO DE COMBUSTIBLE","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○"]},{"nombre":"FILTROS SEP. AGUA/COMBUSTIBLE","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○"]},{"nombre":"FILTRO SEPARADOR COMBUSTIBLE","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○"]},{"nombre":"GRASA EP-2 MOLY","qty":"2kg","estados":["✓","✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○"]},{"nombre":"ACEITE DIFERENCIAL 85W140","qty":"12L","estados":["✓","—","—","—","✓","—","—","—","○","—","—","—","○"]},{"nombre":"FILTRO CAJA","qty":"6L","estados":["✓","—","—","—","—","—","—","—","○","—","—","—","—"]},{"nombre":"FILTRO RETARDADOR","qty":"1","estados":["—","✓","—","✓","—","✓","—","✓","—","○","—","○","—"]},{"nombre":"FILTRO ACEITE DIRECCIÓN","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○"]},{"nombre":"FILTRO BOMBA UREA","qty":"1","estados":["✓","—","✓","—","✓","—","✓","—","○","—","○","—","○"]},{"nombre":"KIT FILTROS AIRE","qty":"1","estados":["✓","✓","✓","✓","✓","✓","✓","✓","○","○","○","○","○"]},{"nombre":"REFRIGERANTE","qty":"10L","estados":["—","—","—","—","—","—","—","—","—","—","—","—","○"]},{"nombre":"FILTRO SECADOR RF","qty":"1","estados":["✓","—","—","—","✓","—","—","—","○","—","—","—","○"]},{"nombre":"COSTO EST. (USD)","qty":"$","estados":["861.33","548.99","901.51","548.99","1530.02","548.99","901.51","548.99","1603.98","548.99","771.31","548.99","1530.02"]}]}};
+
+// ── MAPEO: componente preventivo → sistema predictivo ──
+const COMP_SISTEMA_MAP = {
+  'FILTRO DE UREA':'FILTROS','FILTRO SEPARADOR DE UREA':'FILTROS','FILTRO BOMBA UREA':'FILTROS',
+  'FILTRO DE ACEITE':'MOTOR','ACEITE DE MOTOR':'MOTOR','ACEITE DE MOTOR 15W40 CK-4':'MOTOR',
+  'FILTRO DE AIRE COMPLETO':'FILTROS','KIT FILTROS AIRE':'FILTROS',
+  'FILTRO PETRÓLEO PRINCIPAL':'FILTROS','FILTRO PETRÓLEO SEPARADOR':'FILTROS','FILTRO SECUN. DE PETRÓLEO':'FILTROS',
+  'FILTRO DE COMBUSTIBLE':'FILTROS','FILTROS SEP. AGUA/COMBUSTIBLE':'FILTROS','FILTRO SEPARADOR COMBUSTIBLE':'FILTROS',
+  'FILTRO SECADOR DE AIRE':'FILTROS','FILTRO SECADOR RF':'FILTROS',
+  'FILTRO DE RETARDER':'TREN DE FUERZA','FILTRO RETARDADOR':'TREN DE FUERZA',
+  'ACEITE DE RETARDER':'TREN DE FUERZA','ACEITE DE TRANSMISION AMT':'TREN DE FUERZA',
+  'ACEITE DE CORONA':'TREN DE FUERZA','ACEITE DIFERENCIAL 85W140 GL5':'TREN DE FUERZA','ACEITE DIFERENCIAL 85W140':'TREN DE FUERZA',
+  'FILTRO CAJA':'TREN DE FUERZA','FILTRO ACEITE DIRECCIÓN':'HIDRÁULICO',
+  'ACEITE DE DIRECCIÓN':'HIDRÁULICO','FILTRO DE DIRECCIÓN':'HIDRÁULICO',
+  'ACEITE R.EC. ATF 1/4 LT':'HIDRÁULICO','REFRIGERANTE':'MOTOR',
+};
+
+// ── Estado actual de todos los preventivos de Firebase ──
+let allPrevRegs = {};     // key: `${placa}__${itemNombre}__${kmInterval}` → {fecha, km, taller, costo, obs}
+let prevCurrentPlaca = 'BWU917';
+let prevRegPending = null; // {placa, itemNombre, kmInterval}
+
+function listenPrevRegs() {
+  onSnapshot(collection(db, 'prev_registros'), snap => {
+    allPrevRegs = {};
+    snap.docs.forEach(d => { allPrevRegs[d.id] = { id:d.id, ...d.data() }; });
+    renderPrevTable();
+    renderPrevKPIs();
+    detectCausales();
+  });
+}
+
+function prevKey(placa, itemNombre, kmInterval) {
+  return `${placa}__${itemNombre.replace(/[^a-zA-Z0-9]/g,'_')}__${kmInterval}`;
+}
+
+function renderPrevTabs() {
+  const container = document.getElementById('prevTabs');
+  if (!container) return;
+  const placas = Object.keys(PLAN_PREVENTIVO);
+  container.innerHTML = placas.map(pk => {
+    const plan = PLAN_PREVENTIVO[pk];
+    // Count próximos
+    const proxCount = plan.items.filter(it => it.estados.includes('◉') || it.estados.includes('✓')).length;
+    return `<button class="prev-tab ${pk===prevCurrentPlaca?'active':''}" onclick="APP.selectPrevPlaca('${pk}')">
+      ${plan.placa}
+    </button>`;
+  }).join('');
+}
+
+function selectPrevPlaca(pk) {
+  prevCurrentPlaca = pk;
+  document.querySelectorAll('.prev-tab').forEach(t => t.classList.toggle('active', t.textContent.trim() === PLAN_PREVENTIVO[pk].placa));
+  renderPrevTable();
+  detectCausales();
+}
+
+function renderPrevKPIs() {
+  let prox=0, ok=0, causal=0, costo=0;
+  Object.values(PLAN_PREVENTIVO).forEach(plan => {
+    plan.items.forEach(it => {
+      it.estados.forEach((e,i) => {
+        if (e === '◉') prox++;
+        if (e === '✓') ok++;
+      });
+    });
+    // Buscar costo próximo
+    const costoItem = plan.items.find(it => it.nombre.includes('COSTO'));
+    if (costoItem) {
+      const proxIdx = plan.items[0]?.estados.findIndex((e,i) => {
+        // find first ◉ in any item
+        return plan.items.some(it => it.estados[i] === '◉');
+      });
+      if (proxIdx >= 0 && costoItem.estados[proxIdx]) {
+        costo += parseFloat(costoItem.estados[proxIdx]) || 0;
+      }
+    }
+  });
+  causal = detectCausalesCount();
+  const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  s('pvkpi-prox', prox); s('pvkpi-ok', ok); s('pvkpi-causal', causal);
+  s('pvkpi-costo', costo > 0 ? `$${costo.toFixed(0)}` : '—');
+  const badge = document.getElementById('prevBadge');
+  if (badge) { badge.textContent=causal; badge.style.display=causal>0?'':'none'; }
+}
+
+function renderPrevTable() {
+  const plan = PLAN_PREVENTIVO[prevCurrentPlaca];
+  if (!plan) return;
+  const head = document.getElementById('prevTableHead');
+  const body = document.getElementById('prevTableBody');
+  if (!head || !body) return;
+
+  // Header
+  head.innerHTML = `<tr>
+    <th class="item-col">Ítem / Componente</th>
+    <th>Cant.</th>
+    ${plan.intervals.map(iv => `<th>${iv.label}</th>`).join('')}
+    <th>Registrar</th>
+  </tr>`;
+
+  // Rows — filter out notas/resumen rows
+  const items = plan.items.filter(it =>
+    it.nombre && !it.nombre.startsWith('(') && !it.nombre.startsWith('RESUMEN')
+  );
+
+  body.innerHTML = items.map(it => {
+    const isCosto = it.nombre.includes('COSTO EST.');
+    if (isCosto) return `<tr class="prev-costo-row">
+      <td class="item-name" colspan="2" style="font-weight:700;color:var(--accent)">💰 ${it.nombre}</td>
+      ${it.estados.map(e => `<td style="color:var(--accent);font-weight:700">${e !== '—' ? '$'+e : '—'}</td>`).join('')}
+      <td></td>
+    </tr>`;
+
+    const cells = it.estados.map((e, i) => {
+      const km = plan.intervals[i]?.km;
+      const regKey = prevKey(prevCurrentPlaca, it.nombre, km);
+      const reg = allPrevRegs[regKey];
+      
+      if (reg) {
+        // Ya registrado manualmente → mostrar como hecho con info
+        return `<td title="Registrado: ${reg.fecha||'—'} | km: ${reg.km||'—'} | ${reg.taller||''}">
+          <span class="prev-estado hecho" title="✅ Registrado: ${reg.fecha||''} · ${reg.km||''}km">✅</span>
+        </td>`;
+      }
+      if (e === '✓') return `<td><span class="prev-estado hecho" title="Realizado (según plan)">✓</span></td>`;
+      if (e === '◉') return `<td><span class="prev-estado proximo" title="⚠️ Próximo servicio ≤15,000 km">🔶</span></td>`;
+      if (e === '○') return `<td><span class="prev-estado pendiente" title="Pendiente (futuro)">⭕</span></td>`;
+      return `<td><span class="prev-estado na">—</span></td>`;
+    }).join('');
+
+    // Botón registrar: solo para ítems con próximo (◉) o realizado no confirmado
+    const hasProx = it.estados.includes('◉');
+    const lastDoneIdx = it.estados.map((e,i)=>e==='✓'?i:-1).filter(i=>i>=0).pop() ?? -1;
+    const nextIdx = lastDoneIdx >= 0 ? lastDoneIdx + 1 : it.estados.findIndex(e=>e==='◉'||e==='○');
+    const nextKm = nextIdx >= 0 ? plan.intervals[nextIdx]?.km : null;
+    const regBtnHtml = nextKm
+      ? `<button class="prev-reg-btn" onclick="APP.openPrevReg('${prevCurrentPlaca}','${it.nombre.replace(/'/g,"\\'")}',${nextKm})" title="Registrar mantenimiento realizado">+ Registrar</button>`
+      : `<button class="prev-reg-btn" style="opacity:.3;cursor:not-allowed" disabled>—</button>`;
+
+    return `<tr>
+      <td class="item-name">${it.nombre}</td>
+      <td class="item-qty">${it.qty}</td>
+      ${cells}
+      <td>${regBtnHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── ANÁLISIS CAUSAL: Preventivo reciente + Falla posterior ──
+function detectCausalesCount() {
+  let count = 0;
+  const alertas = buildCausales();
+  count = alertas.length;
+  return count;
+}
+
+function buildCausales() {
+  const alertas = [];
+  const hoy = new Date();
+
+  // Para cada registro manual de preventivo
+  Object.values(allPrevRegs).forEach(reg => {
+    const placa = reg.placa;
+    const itemNombre = reg.itemNombre;
+    const sistema = COMP_SISTEMA_MAP[itemNombre] || null;
+    if (!sistema) return;
+    const fechaReg = reg.fecha ? new Date(reg.fecha) : null;
+    if (!fechaReg) return;
+    const kmReg = parseInt(reg.km) || 0;
+
+    // Buscar fallas de esa placa en ese sistema DESPUÉS del MP
+    const fallasPosterior = allFallas.filter(f => {
+      if (f.placa?.replace('-','') !== placa?.replace('-','')) return false;
+      const sisFalla = detectarSistema(f.descripcion);
+      if (sisFalla !== sistema) return false;
+      const fechaFalla = f.fecha ? new Date(f.fecha) : null;
+      if (!fechaFalla || !fechaReg) return false;
+      const diasDiff = (fechaFalla - fechaReg) / (1000*60*60*24);
+      const kmDiff = Math.abs((parseInt(f.km)||0) - kmReg);
+      // Dentro de 60 días o 10,000 km después del MP
+      return diasDiff >= 0 && diasDiff <= 60 && kmDiff <= 10000;
+    });
+
+    fallasPosterior.forEach(falla => {
+      const dias = Math.round((new Date(falla.fecha) - fechaReg) / (1000*60*60*24));
+      alertas.push({ placa, itemNombre, sistema, fechaMP:reg.fecha, kmMP:kmReg, falla, dias, reg });
+    });
+  });
+
+  return alertas;
+}
+
+function detectCausales() {
+  const container = document.getElementById('prevCausales');
+  if (!container) return;
+  const alertas = buildCausales().filter(a =>
+    a.placa?.replace('-','') === prevCurrentPlaca?.replace('-','') ||
+    PLAN_PREVENTIVO[prevCurrentPlaca]?.placa?.replace('-','') === a.placa?.replace('-','')
+  );
+  if (!alertas.length) { container.innerHTML = ''; return; }
+
+  container.innerHTML = alertas.map(a => `
+    <div class="causal-alert ${a.dias <= 14 ? 'danger' : 'warning'}">
+      <div class="causal-alert-icon">${a.dias <= 14 ? '🚨' : '⚠️'}</div>
+      <div class="causal-alert-body">
+        <strong>ALERTA CAUSAL — ${a.placa}</strong><br>
+        <strong>${a.itemNombre}</strong> fue cambiado en el MP del <strong>${a.fechaMP}</strong> (km: ${a.kmMP.toLocaleString()}).<br>
+        <strong>${a.dias} días después</strong>, se reportó falla en sistema <strong>${a.sistema}</strong>:<br>
+        <em>"${a.falla.descripcion}"</em><br>
+        <span style="font-size:11px;color:var(--text3);margin-top:4px;display:block">
+          💡 Posible causa: instalación incorrecta · pieza defectuosa · falla en componente relacionado · garantía de repuesto pendiente
+        </span>
+      </div>
+    </div>`).join('');
+}
+
+// ── REGISTRAR MP MANUAL ──
+function openPrevReg(placa, itemNombre, kmInterval) {
+  prevRegPending = { placa, itemNombre, kmInterval };
+  document.getElementById('prm-title').textContent = `Registrar MP — ${itemNombre}`;
+  document.getElementById('prm-sub').textContent = `${PLAN_PREVENTIVO[placa]?.placa || placa} · Intervalo: ${(kmInterval/1000).toFixed(0)}k km`;
+  document.getElementById('prm-fecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('prm-km').value = kmInterval;
+  document.getElementById('prm-taller').value = '';
+  document.getElementById('prm-costo').value = '';
+  document.getElementById('prm-obs').value = '';
+  document.getElementById('prevRegModal').classList.add('open');
+}
+
+async function savePrevReg() {
+  if (!prevRegPending) return;
+  const btn = document.getElementById('btnSavePrev');
+  if (btn) { btn.disabled=true; btn.textContent='⏳ Guardando...'; btn.style.opacity='.6'; }
+  try {
+    const { placa, itemNombre, kmInterval } = prevRegPending;
+    const key = prevKey(placa, itemNombre, kmInterval);
+    await setDoc(doc(db, 'prev_registros', key), {
+      placa, itemNombre, kmInterval,
+      sistema: COMP_SISTEMA_MAP[itemNombre] || 'OTROS',
+      fecha:   document.getElementById('prm-fecha').value,
+      km:      parseInt(document.getElementById('prm-km').value) || kmInterval,
+      taller:  document.getElementById('prm-taller').value.trim(),
+      costo:   parseFloat(document.getElementById('prm-costo').value) || 0,
+      obs:     document.getElementById('prm-obs').value.trim(),
+      creadoEn: serverTimestamp(),
+    });
+    APP.closeModal('prevRegModal');
+    showToast(`✅ MP registrado: ${itemNombre}`, 'success');
+    // Verificar causal inmediatamente
+    setTimeout(detectCausales, 500);
+  } catch(e) {
+    console.error(e); showToast('Error al guardar', 'error');
+  } finally {
+    if (btn) { btn.disabled=false; btn.textContent='✅ Confirmar Realizado'; btn.style.opacity=''; }
+  }
+}
+
+function initPreventivo() {
+  renderPrevTabs();
+  renderPrevTable();
+  renderPrevKPIs();
+  detectCausales();
 }
 
 // ─── EXPOSE AS window.APP ───
@@ -3278,6 +3711,7 @@ window.APP = {
   filterPagos, marcarPagado, marcarPendiente,
   filterNeum, openInspeccion, nmUpdate, saveInspeccion,
   filterPred, openPredModal,
+  selectPrevPlaca, openPrevReg, savePrevReg,
   openChecklist, openAddUnit, openFallaModal,
   selectEstado, selectGrav, selectTipo, selectPago,
   addRepuesto, removeRepuesto, updateRepuesto,
@@ -3300,10 +3734,11 @@ document.querySelector('nav').addEventListener('click', e => {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`page-${page}`).classList.add('active');
   btn.classList.add('active');
-  if (page === 'dashboard')  updateDashboard();
-  if (page === 'pagos')      renderPagos();
-  if (page === 'neumaticos') { renderNeumGrid(); updateNeumKPIs(); }
-  if (page === 'predictivo') renderPredGrid();
+  if (page === 'dashboard')   updateDashboard();
+  if (page === 'pagos')       renderPagos();
+  if (page === 'neumaticos')  { renderNeumGrid(); updateNeumKPIs(); }
+  if (page === 'predictivo')  renderPredGrid();
+  if (page === 'preventivo')  initPreventivo();
 });
 
 // Modal overlay click to close
