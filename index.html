@@ -794,7 +794,17 @@
       <option value="GRAVE">Grave</option>
       <option value="LEVE">Leve</option>
     </select>
-    <input type="date" class="filter-select" id="rFilterFecha" onchange="APP.filterReports()">
+    <div style="display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;box-shadow:var(--shadow)">
+      <span style="font-size:11px;color:var(--text2);font-family:var(--font);font-weight:700;letter-spacing:1px;white-space:nowrap">📅 DESDE</span>
+      <input type="date" class="filter-select" id="rFechaDesde" onchange="APP.filterReports()"
+        style="border:none;background:transparent;box-shadow:none;padding:2px 4px;min-width:130px">
+      <span style="font-size:11px;color:var(--text2);font-family:var(--font);font-weight:700;letter-spacing:1px;white-space:nowrap">HASTA</span>
+      <input type="date" class="filter-select" id="rFechaHasta" onchange="APP.filterReports()"
+        style="border:none;background:transparent;box-shadow:none;padding:2px 4px;min-width:130px">
+      <button onclick="APP.clearFechas()" title="Limpiar fechas"
+        style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;line-height:1"
+        onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">✕</button>
+    </div>
     <button class="btn btn-accent" onclick="APP.openFallaModal()">+ Nueva Falla</button>
   </div>
 
@@ -889,7 +899,9 @@
       <option value="PENDIENTE">Pendiente</option>
       <option value="CERRADO">Cerrado</option>
     </select>
-    <input type="date" class="filter-select" id="pFilterFecha" onchange="APP.filterPagos()">
+    <input type="date" class="filter-select" id="pFechaDesde" onchange="APP.filterPagos()" title="Desde">
+    <span style="font-size:11px;color:var(--text2);font-weight:700">→</span>
+    <input type="date" class="filter-select" id="pFechaHasta" onchange="APP.filterPagos()" title="Hasta">
   </div>
 
   <div class="table-wrap">
@@ -2108,20 +2120,28 @@ async function saveUbicacion() {
   APP.closeModal('ubicModal');
   showToast(`📍 ${currentEditPlaca} → ${nueva}`, 'success');
 }
-function filterReports() { renderReports(); }
+function clearFechas() {
+  const d = document.getElementById('rFechaDesde');
+  const h = document.getElementById('rFechaHasta');
+  if (d) d.value = '';
+  if (h) h.value = '';
+  renderReports();
+}
 function renderReports() {
   const tbody = document.getElementById('reportTable');
-  const search = document.getElementById('rSearch')?.value.toLowerCase() || '';
-  const fEst = document.getElementById('rFilterEstado')?.value || '';
-  const fGrav = document.getElementById('rFilterGrav')?.value || '';
-  const fFecha = document.getElementById('rFilterFecha')?.value || '';
+  const search  = document.getElementById('rSearch')?.value.toLowerCase() || '';
+  const fEst    = document.getElementById('rFilterEstado')?.value || '';
+  const fGrav   = document.getElementById('rFilterGrav')?.value || '';
+  const fDesde  = document.getElementById('rFechaDesde')?.value || '';
+  const fHasta  = document.getElementById('rFechaHasta')?.value || '';
 
   let fallas = allFallas.filter(f => {
-    const ms = !search || f.placa?.toLowerCase().includes(search) || f.descripcion?.toLowerCase().includes(search);
-    const me = !fEst || f.estadoFalla === fEst;
-    const mg = !fGrav || f.gravedad === fGrav;
-    const mf = !fFecha || f.fecha === fFecha;
-    return ms && me && mg && mf;
+    const ms = !search || f.placa?.toLowerCase().includes(search) || f.descripcion?.toLowerCase().includes(search) || (f.tecnico||'').toLowerCase().includes(search);
+    const me = !fEst   || f.estadoFalla === fEst;
+    const mg = !fGrav  || f.gravedad === fGrav;
+    const fd = !fDesde || (f.fecha||'') >= fDesde;
+    const fh = !fHasta || (f.fecha||'') <= fHasta;
+    return ms && me && mg && fd && fh;
   });
 
   if (!fallas.length) {
@@ -2836,15 +2856,16 @@ function renderPagos() {
   const search  = (document.getElementById('pSearch')?.value || '').toLowerCase();
   const fEst    = document.getElementById('pFilterEst')?.value || '';
   const fFalla  = document.getElementById('pFilterFalla')?.value || '';
-  const fFecha  = document.getElementById('pFilterFecha')?.value || '';
+  const fDesde  = document.getElementById('pFechaDesde')?.value || '';
+  const fHasta  = document.getElementById('pFechaHasta')?.value || '';
 
-  // Solo fallas que tienen costo > 0 o cualquiera (mostrar todas)
   let fallas = allFallas.filter(f => {
     const ms = !search  || (f.placa||'').toLowerCase().includes(search) || (f.tecnico||'').toLowerCase().includes(search) || (f.descripcion||'').toLowerCase().includes(search);
     const mp = !fEst    || (f.estadoPago || 'PENDIENTE') === fEst;
     const mf = !fFalla  || f.estadoFalla === fFalla;
-    const md = !fFecha  || f.fecha === fFecha;
-    return ms && mp && mf && md;
+    const fd = !fDesde  || (f.fecha||'') >= fDesde;
+    const fh = !fHasta  || (f.fecha||'') <= fHasta;
+    return ms && mp && mf && fd && fh;
   });
 
   // KPIs pagos
@@ -3707,7 +3728,7 @@ function initPreventivo() {
 
 // ─── EXPOSE AS window.APP ───
 window.APP = {
-  filterFleet, filterReports, filterHUnits,
+  filterFleet, filterReports, filterHUnits, clearFechas,
   filterPagos, marcarPagado, marcarPendiente,
   filterNeum, openInspeccion, nmUpdate, saveInspeccion,
   filterPred, openPredModal,
