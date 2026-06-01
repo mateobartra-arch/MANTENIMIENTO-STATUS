@@ -2120,6 +2120,7 @@ async function saveUbicacion() {
   APP.closeModal('ubicModal');
   showToast(`📍 ${currentEditPlaca} → ${nueva}`, 'success');
 }
+function filterReports() { renderReports(); }
 function clearFechas() {
   const d = document.getElementById('rFechaDesde');
   const h = document.getElementById('rFechaHasta');
